@@ -1,0 +1,46 @@
+.dm-uploader{cursor:default;-webkit-touch-callout:none;-webkit-user-select:none;-khtml-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none}.dm-uploader .btn{position:relative;overflow:hidden}.dm-uploader .btn input[type=file]{position:absolute;top:0;right:0;margin:0;border:solid transparent;width:100%;opacity:0;cursor:pointer}
+
+.mb-2,.my-2{margin-bottom:5px!important;padding:0px!important}
+.mb-1 {margin:0px!important;}
+.bg-primary{background-color:#007bff!important}a.bg-primary:focus,a.bg-primary:hover,button.bg-primary:focus,button.bg-primary:hover{background-color:#0062cc!important}.bg-secondary{background-color:#868e96!important}a.bg-secondary:focus,a.bg-secondary:hover,button.bg-secondary:focus,button.bg-secondary:hover{background-color:#6c757d!important}.bg-success{background-color:#28a745!important}a.bg-success:focus,a.bg-success:hover,button.bg-success:focus,button.bg-success:hover{background-color:#1e7e34!important}.bg-info{background-color:#17a2b8!important}a.bg-info:focus,a.bg-info:hover,button.bg-info:focus,button.bg-info:hover{background-color:#117a8b!important}.bg-warning{background-color:#ffc107!important}a.bg-warning:focus,a.bg-warning:hover,button.bg-warning:focus,button.bg-warning:hover{background-color:#d39e00!important}.bg-danger{background-color:#dc3545!important}a.bg-danger:focus,a.bg-danger:hover,button.bg-danger:focus,button.bg-danger:hover{background-color:#bd2130!important}.bg-light{background-color:#f8f9fa!important}a.bg-light:focus,a.bg-light:hover,button.bg-light:focus,button.bg-light:hover{background-color:#dae0e5!important}.bg-dark{background-color:#343a40!important}a.bg-dark:focus,a.bg-dark:hover,button.bg-dark:focus,button.bg-dark:hover{background-color:#1d2124!important}.bg-white{background-color:#fff!important}.bg-transparent{background-color:transparent!important}
+
+.file {
+	width: 130px;
+	height: 150px!important;
+	float: left;
+	padding:3px;
+	margin: 3px;
+	height: 150px;
+	text-align: center;
+	cursor:pointer;
+	border:solid #ccc 1px;
+	position: relative;
+}
+
+.file img {
+	width: 100px;
+	height: 100px;
+	border-radius: 5px;
+}
+
+.file_option {
+	display: none;
+	position:absolute;
+	bottom:5px;
+}
+.no-more {
+	display:none;
+	width:95%;
+	background:#fff!important;
+}
+.no-more:hover {
+	background:#f4f4f4!important;
+	color:#000;
+}
+.loading-div {
+	margin-top:50px;
+	display:block;
+}
+#more-div {
+	display:none;
+}
