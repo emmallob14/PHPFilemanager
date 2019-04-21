@@ -78,7 +78,7 @@ function remove_system_notices(type, item_id, alert_div) {
 		$.ajax({
 			type: "POST",
 			data: "remove_notice&type="+type+"&item_id="+item_id,
-			url: "<?php print $config->base_url(); ?>doProcess/doNotification",
+			url: "<?php print $config->base_url(); ?>doNotices/doNotification",
 			success:function(response) {
 				$("#"+alert_div).slideUp();
 			}

@@ -12,6 +12,7 @@ class Notifications {
 		$this->user_agent = load_class('User_agent', 'libraries');
 		$this->session = load_class('session', 'libraries\Session');
 		$this->folder = load_class('Directories', 'models');
+		$this->offices = load_class('offices', 'models');
 	}
 		
 	public function login_attempt($username) {
@@ -90,12 +91,12 @@ class Notifications {
 		$this->can_continue = true;
 		
 		if($notices == 'disk_full') {
-			if(($this->folder->return_usage()->used_size) >= config_item('disk_space')) {
+			if(($this->folder->return_usage()->used_size) >= $this->offices->item_by_id('disk_space', $this->session->userdata("officeID"))) {
 				$this->result = "<div class='alert btn-block alert-danger'>Sorry! You have reached your maximum disk space capacity. You must delete some of your files to be able to continue.</div>";
 				$this->can_continue = false;
 			}
 		} elseif($notices == 'daily_usage') {
-			if(($this->folder->return_usage()->today_used_raw) >= config_item('daily_upload')) {
+			if(($this->folder->return_usage()->today_used_raw) >= $this->offices->item_by_id('daily_upload', $this->session->userdata("officeID"))) {
 				$this->result = "<div class='alert btn-block alert-danger'>Sorry! You have reached your maximum file uploads for today.</div>";
 				$this->can_continue = false;
 			}

@@ -28,26 +28,21 @@ class Users {
 		$this->session->unset_userdata(':life_Supper_Admin');
 		$this->session->unset_userdata(':lifeAdminRole');
 		
+		$this->session->sess_destroy();
+		
 	}
 	
 	public function lock_user_screen() {
-		
-		
 		return ($this->session->userdata(':lifeLockedOut')) ? true : false; 
-
 	}
 	
 	
 	public function confirm_admin_user() {
-		
-		return ($this->session->userdata(':lifeSESS') AND IN_ARRAY($this->session->userdata(':lifeAdminRole'), array(1, 1001, 1043))) ? true : false;
-		
+		return ($this->session->userdata(':lifeSESS') AND IN_ARRAY($this->session->userdata(':lifeAdminRole'), array(1, 1001))) ? true : false;
 	}
 	
 	public function confirm_super_user() {
-		
-		return ($this->session->userdata(':life_Supper_Admin') AND IN_ARRAY($this->session->userdata(':lifeAdminRole'), array(1043))) ? true : false;
-		
+		return ($this->session->userdata(':life_Supper_Admin') AND IN_ARRAY($this->session->userdata(':lifeAdminRole'), array(1001))) ? true : false;
 	}
 	
 	public function logged_InControlled() {
@@ -63,14 +58,11 @@ class Users {
 		
 		$this->found = false;
 		
-		if(preg_match("/^[0-9]+$/",$id))
-			$field = "id";
-		else
-			$field = "Username";
+		$field = (preg_match("/^[0-9]+$/", $id)) ? "id" : "username";
 			
 		try {
 			
-			$sql = $this->db->query("SELECT * FROM `_admin` WHERE `$field`='$id' AND `status`='1'");
+			$sql = $this->db->query("SELECT * FROM `_admin` WHERE `$field`='$id' AND `admin_deleted`='0'");
 			
 			if($this->db->num_rows($sql) == 1) {
 				
@@ -82,6 +74,8 @@ class Users {
 					$this->lname = $res['lastname'];
 					$this->uname = $res['username'];
 					$this->funame = $res['fullname'];
+					$this->upload_status = $res['uploads_status'];
+					$this->upload_limit = $res['uploads_limit'];
 					$this->ulinked = "<a href='".$config->base_url()."profiles/".$this->uname."'>".$this->funame."</a>";
 					$this->uemail = $res['email'];
 					$this->urole = $res['role'];
@@ -96,7 +90,42 @@ class Users {
 		}
 		
 		return $this;
-	}	
+	}
+
+	public function item_by_id($id, $column) {
+		
+		global $config;
+		
+		$this->found = false;
+		
+		$field = (preg_match("/^[0-9]+$/", $id)) ? "id" : "username";
+			
+		try {
+			
+			$sql = $this->db->query("SELECT * FROM `_admin` WHERE `$field`='$id' AND `admin_deleted`='0'");
+			
+			if($this->db->num_rows($sql) == 1) {
+				
+				$this->found = true;
+				
+				foreach($sql as $results) {
+					# first confirm that the column the user is requesting
+					# does results to be a valid column before you return the value
+					if(isset($results[$column])) {
+						# use the column supplied to fetch the result for the user
+						return $results[$column];
+					}
+					#run the second part of this code to return an empty array set
+					else {
+						# return an empty result
+						return;
+					}
+				}
+			} 
+		} catch(PDOException $e) {}
+		
+		return;
+	}
 	
 	public function changed_password_first() {
 		
@@ -141,6 +170,13 @@ class Users {
 		$user_id = xss_clean($this->session->userdata(":lifeID"));
 		#fetch the user information
 		return $this->get_details_by_id($user_id)->uname;
+	}
+	
+	public function return_email() {		
+		#assign variables
+		$user_id = xss_clean($this->session->userdata(":lifeID"));
+		#fetch the user information
+		return $this->get_details_by_id($user_id)->uemail;
 	}
 	
 	public function return_fullname() {

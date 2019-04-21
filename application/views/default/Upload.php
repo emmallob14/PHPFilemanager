@@ -3,7 +3,6 @@ $PAGETITLE = "Upload Files";
 REQUIRE "TemplateHeader.php";
 GLOBAL $directory, $session;
 $FILE_FOUND = FALSE;
-
 // initialize some sessions
 $session->unset_userdata('replaceItemId');
 if(!$session->userdata('RootFolder')) {
@@ -57,17 +56,25 @@ if(confirm_url_id(1, 'Replace')) {
 	</div>
 	<div class="widget-content" >
 	  <?php if( $FILE_FOUND ) { ?>
-		<div class="span12">
+		<div class="">
 		<input type="hidden" readonly id="replace_file" name="replace_file" value="success" content="<?php print $session->userdata("sharedItemUrl"); ?>">
 		<?php foreach($shared_Files as $Files) { ?>
-		<span>You are about to replace the file <strong><?php print $PAGETITLE; ?></strong> which was uploaded by <strong><?php print $admin_user->get_details_by_id($Files["shared_by"])->funame; ?></strong> on <strong><?php print $directory->item_by_id2('date_added', $item_id); ?></strong></span>
+		<span class='alert alert-primary' style="width:100%">You are about to replace the file <strong><?php print $PAGETITLE; ?></strong> which was uploaded by <strong><?php print $admin_user->get_details_by_id($Files["shared_by"])->funame; ?></strong> on <strong><?php print $directory->item_by_id2('date_added', $item_id); ?></strong></span>
 		<?php } ?>
 		</div>
-		<br clear="both"><hr>
-	  <?php } ?>
+		<br clear="both">
+	  <?php } ELSE { ?>
+	  <input type="hidden" readonly id="replace_file" name="replace_file" value="undefined" content="">
+	  <?PHP } ?>
+	  
+		<div class="">
+		<span class='alert alert-primary' style="width:100%">The files will be uploaded into the  <strong><?php if( $session->userdata('RootFolder') ) { ?><?php print strtoupper($directory->item_by_id('item_title', $session->userdata('RootFolder'))); ?><?php } else { ?>ROOT<?php } ?></strong> Folder. <a class='btn btn-primary' id='changeFolder' href="<?php print $config->base_url(); ?>ItemsStream">Change Folder?</a></span>
+		</div>
+		<br clear="both">
 	  <div class="row-fluid">
 		
 		<div class="span6">
+			<?php if($admin_user->get_details_by_id($session->userdata(":lifeID"))->upload_status) { ?>
 			<div id="drag-and-drop-zone" class="dm-uploader p-5">
 				<h3 class="mb-5 mt-5 text-muted">Drag &amp; drop files here</h3>
 				<div class="btn btn-primary btn-block mb-5">
@@ -75,6 +82,11 @@ if(confirm_url_id(1, 'Replace')) {
 					<input type="file" title='Click to add Files' />
 				</div>
 			</div>
+			<?php }  else { ?>
+			<div class="dm-uploader p-5">
+				<h4 class="mb-5 mt-5 text-muted alert alert-danger">Sorry! You are not permitted to upload files unto this server. Please contact the Administrator if problem persists.</h4>
+			</div>
+			<?php } ?>
 		</div>
 		<div class="span6">
 		  <div class="card h-100">
@@ -87,6 +99,7 @@ if(confirm_url_id(1, 'Replace')) {
           </div>
 		</div>
 	  </div>
+	  <?php if($admin_user->get_details_by_id($session->userdata(":lifeID"))->upload_status) { ?>
 	  <div class="row-fluid">
         <div class="span12">
            <div class="card h-100">
@@ -99,6 +112,7 @@ if(confirm_url_id(1, 'Replace')) {
           </div>
         </div>
       </div> <!-- /debug -->
+	  <?php } ?>
 	</div>
   </div>
 </div>

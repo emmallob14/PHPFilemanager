@@ -16,17 +16,17 @@ load_file(
 <link rel="stylesheet" href="<?php print $config->base_url(); ?>assets/css/bootstrap-responsive.min.css" />
 <link rel="stylesheet" href="<?php print $config->base_url(); ?>assets/css/matrix-login.css" />
 <link href="<?php print $config->base_url(); ?>assets/font-awesome/css/font-awesome.css" rel="stylesheet" />
-<link href='http://fonts.googleapis.com/css?family=Open+Sans:400,700,800' rel='stylesheet' type='text/css'>
+<!--<style href='http://fonts.googleapis.com/css?family=Open+Sans:400,700,800' rel='stylesheet' type='text/css'>-->
 <meta name="pageurl" id="pageurl" value="<?php print $config->base_url(); ?>" content="<?php print $config->base_url(); ?>">
 </head>
-<body>
+<body style="height:500px;">
 	<div id="loginbox">            
 		<form id="loginForm" method="POST" class="form-vertical" action="<?php print $config->base_url(); ?>doAuth/doLogin">
-			 <div class="control-group normal_text"> <h3>MYOFFICE FILEMANAGER</h3></div>
+			 <div class="control-group normal_text"> <h3><?php print config_item('site_name'); ?></h3></div>
 			<div class="control-group">
 				<div class="controls">
 					<div class="main_input_box">
-						<span class="add-on bg_lg"><i class="icon-user"> </i></span><input type="text" placeholder="Username" name="username"/>
+						<span class="add-on bg_lg"><i class="icon-user"> </i></span><input type="text" placeholder="Username" value="<?php print (isset($_GET["User"])) ? xss_clean($_GET["User"]) : ""; ?>" name="username"/>
 					</div>
 				</div>
 			</div>
@@ -44,23 +44,24 @@ load_file(
 				<span class="pull-right"><button id="submitButton" type="submit" class="btn btn-success" > Login</button></span>
 			</div>
 		</form>
-		<form id="recoverForm" method="POST" action="<?php print $config->base_url(); ?>doAuth/doRecover" class="form-vertical">
-			<p class="normal_text">Enter your e-mail address below and we will send you instructions how to recover a password.</p>
-			
+		<form id="recoverForm" method="POST" action="<?php print $config->base_url(); ?>doAuth/doRequestPasswordChange" class="form-vertical">
+			<p class="normal_text">Enter your e-mail address below and we will send you instructions how to recover a password.</p>			
 			<div class="controls">
 				<div class="main_input_box">
-					<span class="add-on bg_lo"><i class="icon-envelope"></i></span><input type="text" placeholder="E-mail address" />
+					<span class="add-on bg_lo"><i class="icon-envelope"></i></span><input type="email" placeholder="E-mail address" name="request_username" id="request_username" />
 				</div>
-			</div>
-		   
+			</div>		   
 			<div class="form-actions">
 				<span class="pull-left"><a href="#" class="flip-link btn btn-success" id="to-login">&laquo; Back to login</a></span>
+				<input type="hidden" id="request_password_change" name="request_password_change">
 				<span class="pull-right"><button class="btn btn-info" id="submitButton2" type="submit">Recover</button></span>
 			</div>
 		</form>
-		<div id="formResult"><?php PRINT (confirm_url_id(1, 'doLogout')) ? "<div class='alert alert-success alert-md btn-block' style='width:100%'>You have successfully logged out of the system.</div>" : ""; ?></div>
-	</div>
-	
+		<div id="formResult"><?php PRINT (confirm_url_id(1, 'doLogout')) ? "<div class='alert alert-success alert-md btn-block' style='width:100%'>You have successfully logged out of the system.</div>" : NULL;
+		// automatically destroy all sessions if the url matches the logout url
+		(confirm_url_id(1, 'doLogout')) ? $session->sess_destroy() : NULL;
+		?></div>
+	</div>	
 	<script src="<?php print $config->base_url(); ?>assets/js/jquery.min.js"></script>  
 	<script src="<?php print $config->base_url(); ?>assets/js/matrix.login.js"></script>
 	<script src="<?php print $config->base_url(); ?>assets/js/matrix.script.js"></script>

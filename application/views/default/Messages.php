@@ -76,7 +76,11 @@ REQUIRE "TemplateHeader.php";
 		
 		<div class="widget-title"> <span class="icon"><i class="icon-th"></i></span>
 		<?php if( !$MESSAGE_FOUND ) { ?><h5>List of all messages</h5><?php } ?>
-		<?php if( $MESSAGE_FOUND ) { ?><h5>Details of message</h5><?php } ?>
+		<?php if( $MESSAGE_FOUND ) { ?>
+			<h5>Details of message</h5>
+			<h5 style="float:right;background-color:#006dcc;color:#fff">Chating with <?php print $admin_user->get_details_by_id($session->userdata("chat_Receiver_Id"))->funame; ?></h5>
+		<?php } ?>
+	
 	    </div>
 		<div class="widget-content nopadding collapse in" id="collapseG4">
 		<div class="chat-users panel-right2">
@@ -104,7 +108,7 @@ REQUIRE "TemplateHeader.php";
 						$class = "";
 					}
 				?>
-				<li title="Click to chat with <?php print $admin_user->get_details_by_id($AdminUsers["id"])->funame; ?>" id="user-<?php print $AdminUsers["id"]; ?>" class="online"><a <?php print $class; ?> href="<?php print $config->base_url(); ?>Messages/Id/<?php print $unique_id; ?>"><img alt="" src="<?php print SITE_URL; ?>/assets/images/demo/av1.jpg" /> <span><?php print $admin_user->get_details_by_id($AdminUsers["id"])->funame; ?></span></a></li>
+				<li title="Click to chat with <?php print $admin_user->get_details_by_id($AdminUsers["id"])->funame; ?>" id="user-<?php print $AdminUsers["id"]; ?>" class="online"><a <?php print $class; ?> href="<?php print $config->base_url(); ?>Messages/Id/<?php print $unique_id; ?>"><img alt="" src="<?php print $config->base_url(); ?>assets/images/demo/av1.jpg" /> <span><?php print $admin_user->get_details_by_id($AdminUsers["id"])->funame; ?></span></a></li>
 				<?php } ?>
 			</ul>
 		  </div>
@@ -152,10 +156,10 @@ REQUIRE "TemplateHeader.php";
 				?>
 				<tr id="Message_view_<?php print $r_chat["id"]; ?>">
 					<td>
-						<a href="<?php print SITE_URL; ?>/Messages/Id/<?php print $chat_UID; ?>"><?php print $i; ?></a>
+						<a href="<?php print $config->base_url(); ?>Messages/Id/<?php print $chat_UID; ?>"><?php print $i; ?></a>
 					</td>
 					<td>
-						<a href="<?php print SITE_URL; ?>/Messages/Id/<?php print $chat_UID; ?>"><?php print $admin_user->get_details_by_id($other_Id)->funame; ?></a>
+						<a href="<?php print $config->base_url(); ?>Messages/Id/<?php print $chat_UID; ?>"><?php print $admin_user->get_details_by_id($other_Id)->funame; ?></a>
 					</td>
 					<td><?php print limit_words($r_chat["message"], 10); ?> [...]</td>
 					<td><?php print time_diff(strtotime($r_chat["sent_date"])); ?></td>
@@ -168,7 +172,7 @@ REQUIRE "TemplateHeader.php";
 					</td>
 					<td>
 						<div class="dropdown">
-							<a href="<?php print SITE_URL; ?>/Messages/Id/<?php print $chat_UID; ?>" class="btn btn-success" aria-expanded="false"><i class="icon icon-eye-open"></i></a>
+							<a href="<?php print $config->base_url(); ?>Messages/Id/<?php print $chat_UID; ?>" class="btn btn-success" aria-expanded="false"><i class="icon icon-eye-open"></i></a>
 						</div>
 					</td>
 				</tr>

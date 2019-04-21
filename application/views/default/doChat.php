@@ -1,19 +1,21 @@
 <?php 
 #initial 
-global $DB, $functions, $session;
-
-if($admin_user->logged_InControlled() == true) { 
+global $DB, $functions, $session, $config;
+# confirm that the user is logged in 
+IF($admin_user->logged_InControlled()) {
+	// create some important objects
 	$directory = load_class('directories', 'models');
 	$user_agent = load_class('user_agent', 'libraries');
+	
 	#confirm that the user has parsed this value
 	IF(ISSET($SITEURL[1]) AND ($SITEURL[1] == "doList")) {
 		// Confirm that the user wants to list the comments
-		IF(ISSET($SITEURL[2]) AND ($SITEURL[2] == "Comments") AND $session->userdata('sharedItemId')) {
+		IF(ISSET($SITEURL[2]) AND ($SITEURL[2] == "Comments") AND $session->userdata('sharedItemSlug')) {
 			#check if the user is logged in
 			IF(ISSET($_POST["Action"]) AND $_POST["Action"] == "fetchComments") {
 				# query the database _shared_listing table for the files that has been shared
-				$item_id = $session->userdata('sharedItemId');
-				$shared_Files = $DB->query("SELECT * FROM _shared_comments WHERE file_id='$item_id'");
+				$shared_slug = $session->userdata('sharedItemSlug');
+				$shared_Files = $DB->query("SELECT * FROM _shared_comments WHERE shared_slug='$shared_slug'");
 				# using foreach loop to list the items 
 				PRINT "<script>";
 				PRINT "$('#chat-messages-inner').html('');";
@@ -32,12 +34,12 @@ if($admin_user->logged_InControlled() == true) {
 		IF(ISSET($_POST["Data"]) AND STRLEN($_POST["Data"]) > 1) {
 			IF(ISSET($_POST["Action"]) AND $_POST["Action"] == "AddComment") {
 				# query the database _shared_listing table for the files that has been shared
-				$item_id = $session->userdata('sharedItemId');
+				$shared_slug = $session->userdata('sharedItemSlug');
 				$Data = nl2br(xss_clean($_POST["Data"]));
 				$ip = $user_agent->ip_address();
 				$br = $user_agent->browser()." ".$user_agent->platform();
 				
-				$DB->query("INSERT INTO _shared_comments SET file_id='$item_id', user_id='{$session->userdata(":lifeID")}', comment='$Data', user_agent='$ip: $br'");
+				$DB->query("INSERT INTO _shared_comments SET shared_slug='$shared_slug', user_id='{$session->userdata(":lifeID")}', comment='$Data', user_agent='$ip: $br'");
 			}
 		}
 	}
@@ -103,7 +105,7 @@ if($admin_user->logged_InControlled() == true) {
 				$list_chats = $DB->query("select * from _messages where unique_id='$chatUnQ_Id' order by id desc limit 1");
 				#CHECK IF ITS THE VERY FIRST MESSAGE 
 				IF($session->userdata("chatFirst_Time")) {
-					die("<script>window.location.href='".SITE_URL."/Messages/Id/$chatUnQ_Id';</script>");
+					redirect ( $config->base_url(). "Messages/Id/$chatUnQ_Id'");
 				}
 				// print the initial message script header
 				PRINT "<script>";
@@ -119,5 +121,8 @@ if($admin_user->logged_InControlled() == true) {
 	}
 	
 	
+} ELSE {
+	// PRINT ERROR MESSAGE
+	PRINT "<div class='alert alert-danger'>Sorry! You to do not have permission to perform this operation.</div>";
 }
 ?>

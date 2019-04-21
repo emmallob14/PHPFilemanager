@@ -3,6 +3,9 @@ $PAGETITLE = "Add New Folder";
 REQUIRE "TemplateHeader.php";
 
 load_helpers('directory_helper');
+if(!$session->userdata('RootFolder')) {
+	$session->set_userdata('RootFolder', 0);
+}
 ?>
 <!--main-container-part-->
 <div id="content">
@@ -30,11 +33,11 @@ load_helpers('directory_helper');
 				</div>
 				
 				<div class="widget-content nopadding">
-				  <form class="form-horizontal" method="POST" action="<?php print $config->base_url(); ?>doAdd/addFolder" autocomplete="Off" name="addFolder" id="addFolder" novalidate="novalidate">
+				  <form class="form-horizontal" method="POST" action="<?php print $config->base_url(); ?>doFolder/addFolder" autocomplete="Off" name="addFolder" id="addFolder" novalidate="novalidate">
 					<div class="control-group">
 					  <label class="control-label">Select Parent Folder</label>
 					  <div class="controls">
-						<?php print $directory->item_by_id('item_title', $session->userdata('RootFolder')); ?> <span><a class='btn btn-primary' id='changeFolder' href="<?php print SITE_URL; ?>/ItemsStream">Change Folder?</a></span>
+						<?php print $directory->item_by_id('item_title', $session->userdata('RootFolder')); ?> <span><a class='btn btn-primary' id='changeFolder' href="<?php print $config->base_url(); ?>ItemsStream">Change Folder?</a></span>
 					  </div>
 					</div>
 					<div class="control-group">

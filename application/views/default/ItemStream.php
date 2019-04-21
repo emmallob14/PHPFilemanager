@@ -2,27 +2,28 @@
 $PAGETITLE = "File Stream";
 REQUIRE "TemplateHeader.php";
 GLOBAL $directory;
-load_helpers('url_helper');
 // initializing
 $FILE_FOUND = FALSE;
 $item_id = 0;
 // check the url that has been parsed
 if(confirm_url_id(1, 'Id')) {
 	if(confirm_url_id(2)) {
-		$item_id = xss_clean($SITEURL[2]);
+		$item_slug = xss_clean($SITEURL[2]);
 		IF($DB->num_rows(
 			$DB->where(
 			'_item_listing', '*', 
 			ARRAY(
-				'item_unique_id'=>"='$item_id'",
+				'item_unique_id'=>"='$item_slug'",
 				'user_id'=>"='".$session->userdata(":lifeID")."'",
 				'item_status'=>"='1'",
 		))) == 1) {
 			# ASSIGN A TRUE VALUE TO THE USER FOUND 
 			$FILE_FOUND = TRUE;
-			$item_id = $directory->item_by_id('id', $item_id);
+			$item_id = $directory->item_by_id('id', $item_slug);
 			$FOLDER_TREE = $directory->item_by_id('item_folder_tree', $item_id);
 			$ITEM_TYPE = $directory->item_by_id('item_type', $item_id);
+			// change the file download link each time the user views the file 
+			$directory->change_download_link($item_slug);
 			# CONFIRM THAT THE CURRENT ITEM IS A FOLDER 
 			IF($directory->item_by_id('item_type', $item_id) == "FOLDER") {
 				$session->set_userdata('RootFolder', $item_id);
@@ -68,7 +69,7 @@ if(confirm_url_id(1, 'Id')) {
 			</div>
 			<div id="edit_item_div">
 			<?php if(confirm_url_id(3, 'Edit')) { ?><script>$("#edit_item_div").show();</script><?php } else { ?><script>$("#edit_item_div").hide();</script><?php } ?>
-			<form class="form-horizontal" method="POST" action="<?php print $config->base_url(); ?>doUpdate/changeName" autocomplete="Off" name="itemForm" id="itemForm" novalidate="novalidate">
+			<form class="form-horizontal" method="POST" action="<?php print $config->base_url(); ?>doUpdate/changeName" autocomplete="Off" name="editForm" id="editForm" novalidate="novalidate">
 				<div class="control-group">
 				<label class="control-label">Item New Name</label>
 				<div class="controls">
@@ -101,8 +102,9 @@ if(confirm_url_id(1, 'Id')) {
 
             <ul class="list-unstyled p-2 d-flex flex-column col" id="files" style="min-height:250px;max-height:250px;overflow:scroll;">
               <li><strong>ITEM NAME: </strong> <span class='item_name'><?php print $directory->item_by_id('item_title', $item_id); ?></span></li>
-			  <li><strong>ITEM SIZE: </strong> <?php print $directory->item_by_id('item_size', $item_id); ?></li>
+			  <li><strong>ITEM SIZE: </strong> <?php print ($ITEM_TYPE == "FOLDER") ? file_size_convert($directory->item_full_size($item_id)) : $directory->item_by_id('item_size', $item_id); ?></li>
 			  <li><strong>ITEM TYPE: </strong> <?php print $ITEM_TYPE; ?></li>
+			  <li><strong>ITEM EXT: </strong> <?php print $directory->item_by_id('item_ext', $item_id); ?></li>
 			  <li><strong>ITEM DESCRIPTION: </strong> <?php print $directory->item_by_id('item_description', $item_id); ?></li>
 			  <li><strong>DATE UPLOADED: </strong> <?php print $directory->item_by_id('date_added', $item_id); ?></li>
 			  <li><strong>UPLOADED BY: </strong> <?php print $directory->item_by_id('item_users', $item_id); ?></li>
@@ -113,7 +115,7 @@ if(confirm_url_id(1, 'Id')) {
 		  <br clear="both">
 		  <div class="">
 		  <?php if($ITEM_TYPE == "FILE") { ?>
-			<a target="_blank" class="btn btn-block btn-primary span2" href="<?php print $config->base_url().'Download/'.$directory->item_by_id('item_unique_id', $item_id); ?>"><i class="icon-download"></i> DOWNLOAD</a>
+			<a target="_blank" class="btn btn-block btn-primary span2" href="<?php print $config->base_url().'Download/'.$directory->item_by_id('item_download_link', $item_id); ?>"><i class="icon-download"></i> DOWNLOAD</a>
 			<?php } ?>
 			<?php if($ITEM_TYPE == "FOLDER") { ?>
 			<a class="btn btn-block span3 btn-primary" href="<?php print $config->base_url().'Folder'; ?>"><i class="icon-plus"></i> ADD FOLDER</a>
@@ -155,13 +157,20 @@ if(confirm_url_id(1, 'Id')) {
 							$fileName = $Files["item_title"];
 							$Id = $Files["id"];
 							$Uid = $Files["item_unique_id"];
+							$DLink = $Files["item_download_link"];
 							
-							echo "<div class='file' onmouseout='hide_item(\"$Id\")' onmouseover='show_item(\"$Id\")'><a href='".$config->base_url()."ItemStream/Id/$Uid'><img src='".$config->base_url().$Files['item_thumbnail']."'><br>$fileName</a><br>
-							<div class='file_option' id='option_$Id'>
-								<span onclick='process_item(\"delete\", \"$Id\", \"FILE\");' class='btn btn-danger'><i class='icon-trash'></i></span>
-								<span onclick='process_item(\"edit\", \"$Id\", \"FILE\");' class='btn btn-primary'><i class='icon-edit'></i></span>
-								<span onclick='process_item(\"download\", \"$Id\", \"FILE\");' class='btn btn-success'><i class='icon-download'></i></span>
-							</div></div>";
+							PRINT "<div class='file' onmouseout='hide_item(\"$Id\")' onmouseover='show_item(\"$Id\")'><a href='".$config->base_url()."ItemStream/Id/$Uid'><img src='".$config->base_url().$Files['item_thumbnail']."'><br>$fileName</a><br>";
+							PRINT "<div class='file_option' id='option_$Id'>";
+							// CONFIRM THAT THE FILE IS A ZIP FILE
+							IF($file_ext == "zip") {
+								PRINT "<span title='Extract File' onclick='extract_zip(\"$Uid\");' class='btn btn-primary'><i class='icon-bookmark'></i></span> ";
+							} ELSE {
+								PRINT "<span onclick='process_item(\"edit\", \"$Uid\", \"FILE\");' class='btn btn-primary'><i class='icon-edit'></i></span> ";
+							}
+							PRINT "<span title='Download this file' class='btn btn-success'><a style='color:#fff' href='".$config->base_url()."Download/$DLink' target='_blank'><i class='icon-download'></i></a></span> ";
+							PRINT "<span title='Add File to Share List' onclick='add_share_item(\"$Uid\",\"$fileName\");' class='btn btn-warning'><i class='icon-plus'></i></span> ";
+							PRINT "<span onclick='process_item(\"delete\", \"$Id\", \"FILE\");' class='btn btn-danger'><i class='icon-trash'></i></span>";
+							PRINT "</div></div>";
 						}
 					}
 				  ?>

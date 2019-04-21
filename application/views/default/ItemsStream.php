@@ -2,6 +2,7 @@
 $PAGETITLE = "Files & Folder Listing";
 REQUIRE "TemplateHeader.php";
 GLOBAL $notices;
+$session->unset_userdata('RootFolder');
 ?>
 <!--main-container-part-->
 <div id="content">
