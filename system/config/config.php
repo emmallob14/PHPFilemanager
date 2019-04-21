@@ -283,7 +283,7 @@ $config['log_date_format'] = 'Y-m-d H:i:s';
 $config['default_view_path'] = 'application/views/default/';
 $config['default_assets_path'] = '/default';
 $config['upload_path'] = 'assets/uploads/';
-$config['thumbnail_path'] = 'assets/uploads/thumbnail/';
+$config['thumbnail_path'] = 'assets/images/thumbnail/';
 /*
 |--------------------------------------------------------------------------
 | Error Views Directory Path
@@ -534,11 +534,10 @@ $config['rewrite_short_tags'] = FALSE;
 $config['proxy_ips'] = '';
 
 $config['rowsperpage'] = 40;
-$config['site_url'] = 'FindADoctorGh.Com';
-$config['site_name'] = 'FindADoctorGh';
-$config['site_email'] = 'info@FindADoctorGh.Com';
+$config['site_url'] = 'MatrixFileManager.Com';
+$config['site_name'] = 'MatrixAdmin FileManager';
+$config['site_email'] = 'info@MatrixFileManager.Com';
 $config['developer'] = 'Emmanuel Obeng';
 $config['update_folder'] = '/filemanager/application/backups/';
-
-$config['disk_space'] = 15000*1024*1048;
-$config['daily_upload'] = 2024*1024*1048;
+$config['server_space'] = 1190899280000*10;
+$config['daily_uploads'] = 1190899280000/5;

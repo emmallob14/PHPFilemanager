@@ -63,6 +63,7 @@ $includeFile = config_item('default_view_path').PREG_REPLACE('/[^\w_]-/','',$SIT
 
 $admin_user = load_class('users', 'models');
 $directory = load_class('directories', 'models');
+$offices = load_class('offices', 'models');
 
 #Check the site status
 GLOBAL $SITEURL;

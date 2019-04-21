@@ -694,7 +694,9 @@ function validate_image($theValue) {
 
 #CREATE A SIMPLE FUNCTION TO RUN A TEST ON USER PASSWORD
 function passwordTest($password) {
-	if(preg_match("/^[a-z]+$/", $password)) {
+	if(strlen($password) < 8) {
+		return false;
+	} elseif(preg_match("/^[a-z]+$/", $password)) {
 		return false;
 	} elseif(preg_match("/^[A-Z]+$/", $password)) {
 		return false;

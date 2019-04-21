@@ -140,7 +140,7 @@ function template($temp_id = null, $subject = null, $message = null) {
 		
 		//query the database for the id that you want to select
 		$query = $DB->where(
-			'sd_email_templates', 
+			'_email_templates', 
 			'*',
 			array(
 				'id'=>"='$template_id'",
@@ -451,7 +451,7 @@ if ( ! function_exists('send_email'))
 				$encrypt = load_class('encrypt', 'libraries');
 				$slug = random_string('alnum', mt_rand(20, 25));
 				// record the email in the database 
-				$DB->touch(EMAIL_TABLE, 
+				$DB->touch('_email', 
 					array(
 						'slug'=>$slug,
 						'send_to'=>$_recipients, 'user_id'=>$user_id, 'sent_from'=>$from, 

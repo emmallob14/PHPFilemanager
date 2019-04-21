@@ -18,7 +18,6 @@ $DB = load_class('DB', 'core');
 $config = load_class('config', 'core');
 $session = load_class('session', 'libraries\Session');
 load_core('Security');
-load_helpers('url_helper');
-load_helpers('string_helper');
+load_helpers(ARRAY('string_helper','email_helper','url_helper'));
 
 global $DB;
