@@ -1,8 +1,17 @@
 var pageurl = $("#pageurl").attr('content');
 $("#loading_div").hide();
+// list all files 
 list_files();
+// list the users that have been added 
 list_added_users();
+// list all items that have been added to be shared
+list_added_items();
+// confirm if the user wants tot share the files
 confirm_share();
+
+// this portion fetches all files that have been uploaded by the current user
+// it picks the current row that have been parsed and the page url for processing
+// of the form.
 function list_files() {
 	var _c_row = Number($('#_c_row').val());
 	var _pg_url = $('#_pg_url').val();
@@ -21,6 +30,12 @@ function list_files() {
 		}
 	});
 }
+
+// confirm if the user has clicked on the load more button 
+// this will fetch additional items from the list of items 
+// uploaded by the user and display them to the page 
+// it picks other parameters from the page and submits it 
+// for processing by the appropriate file 
 $('.load-more').click(function(){
 	var _c_row = Number($('#_c_row').val());
 	var _p_limit = Number($('#_p_limit').val());
@@ -46,6 +61,8 @@ $('.load-more').click(function(){
 		}
 	});
 });
+
+// processes the login of a user.
 $('#loginForm').on('submit', function (e) {
 	e.preventDefault();
 	$("#submitButton").attr("disabled", true);
@@ -63,6 +80,28 @@ $('#loginForm').on('submit', function (e) {
 	});
 });
 
+// the part processes the form that enables a user to 
+// request for a new password token and a subsequent
+// randomly generated password
+$('#recoverForm').on('submit', function (e) {
+	e.preventDefault();
+	$("#submitButton2").attr("disabled", true);
+	$.ajax({
+		type: 'POST',
+		url: $("#recoverForm").attr('action'),
+		data: $('#recoverForm').serialize(),
+		beforeSend: function() {
+			$("#formResult").html('<div style="width:100%" class="alert alert-warning alert-md alert-block">Please wait <img src="'+pageurl+'/assets/images/loadings.gif" align="absmiddle" /></div>');
+		}, success: function(response) {
+			$("#formResult").html(response);
+			$("#request_username").val("");
+			$("#submitButton2").removeAttr("disabled", true);
+		}
+	});
+});
+
+// logs the user out from the system by clearing all 
+// access sessions that have been created on the browser
 $(".logoutUser").on('click', function (e) {
 	if(confirm('Are you sure you want to logout?')) {
 		$.ajax({
@@ -91,8 +130,10 @@ function process_item(Action, Id, Type, Uid, Redir=null, Redir_Link=null) {
 		msg  = "Are you sure you want to Delete this Folder, Sub Folders and Files?";
 	} else if((Action == "delete") && (Type == "Shared_File")) {
 		msg  = "Are you sure you want to Delete this Shared File?";
-	}  else if((Action == "delete") && (Type == "Shared_Folder")) {
-		msg  = "Are you sure you want to Delete this Shared Folder?";
+	} else if((Action == "start") && (Type == "Shared_File")) {
+		msg  = "Are you sure you want to continue sharing these files?";
+	}  else if((Action == "stop") && (Type == "Shared_File")) {
+		msg  = "Are you sure you want to stop sharing these files?";
 	} 
 	
 	if((Action == "delete")) {
@@ -100,7 +141,7 @@ function process_item(Action, Id, Type, Uid, Redir=null, Redir_Link=null) {
 			$.ajax({
 				type: 'POST',
 				data: 'Action='+Action+'&Id='+Id+'&Type='+Type+'&Uid='+Uid,
-				url: pageurl+"doUpdate/doDelete",
+				url: pageurl+"doDelete/doDelete",
 				success: function(response) {
 					$('.gritter-item-wrapper').css("display","block");
 					if($.trim(response) == 'error') {
@@ -130,6 +171,35 @@ function process_item(Action, Id, Type, Uid, Redir=null, Redir_Link=null) {
 				}
 			});
 		}
+	}
+	
+	if((Action == "start" || Action == "stop")) {
+		if(confirm(msg)) {
+			$.ajax({
+				type: 'POST',
+				data: 'Action='+Action+'&Id='+Id+'&Type='+Type+'&Uid='+Uid,
+				url: pageurl+"doDelete/doDelete",
+				success: function(response) {
+					$('.gritter-item-wrapper').css("display","block");
+					$.gritter.add({
+						title:	'Update Notice',
+						text:	response,
+						sticky: false
+					});
+					if(Redir == "REDIR") {
+						if(Redir_Link != null) {
+							setTimeout(function() {
+								window.location.href=Redir_Link; 
+							}, 2000);
+						} else {
+							setTimeout(function() {
+								window.location.href=pageurl+"ItemsStream"; 
+							}, 2000);
+						}
+					}
+				}
+			});
+		}		
 	}
 	
 	if((Action == "edit")) {
@@ -162,6 +232,10 @@ $("#deleteItem").on('click', function(e) {
 	e.preventDefault();
 });
 
+$("#modifyItem").on('click', function(e) {
+	e.preventDefault();
+});
+
 $(".add_user").on('click', function(e) {
 	e.preventDefault();
 });
@@ -172,6 +246,26 @@ $(".share_Item").on('click', function(e) {
 	window.location.href=share_link;
 });
 
+$("#cancelButton").on('click', function(e) {
+	$("#edit_item_div").hide('slow');
+	$("#itemForm")[0].reset();
+	e.preventDefault();
+});
+
+// this section helps a user with admin level to 
+// modify the user account details 
+function modify_account(id, content) {
+	if(confirm("Are you sure you want to "+content+" this Admin Account?")) {
+		$.ajax({
+			type: "post",
+			url: pageurl+"doAuth/doModify",
+			data: "modify_account&type="+content+"&id="+id,
+			success: function(response) {
+				$(".modify_result").html(response);
+			}
+		});
+	}
+}
 // search for users and list then in a li format
 $("#user_Search").on('submit', function(e) {
 	e.preventDefault();
@@ -183,7 +277,7 @@ $("#user_Search").on('submit', function(e) {
 		$.ajax({
 			type: 'POST',
 			data: 'Action=searchUser&Name='+user_name,
-			url: pageurl+"doProcess/doSearch",
+			url: pageurl+"doSearch/doSearch",
 			success: function(response) {
 				$(".users_Found").html(response);
 			}
@@ -192,17 +286,19 @@ $("#user_Search").on('submit', function(e) {
 });
 
 // process the file sharing form
+// this will run after all users have been added and 
+// the file sharing permissions have been full set
 $("#share_File").on('submit', function(e) {
 	e.preventDefault();
 	$.ajax({
 		type: 'POST',
 		data: $('#share_File').serialize(),
-		url: pageurl+"doProcess/doShare",
+		url: pageurl+"doShare/doShare",
 		success: function(response) {
 			$('.gritter-item-wrapper').css("display","block");
 			if($.trim(response) == 'success') {
 				var header = 'Sharing Success';
-				var content = 'Congrats! The file was successfully shared with the selected users.';
+				var content = 'Congrats! The file was successfully shared with the selected users. This page will reload in 5 seconds.';
 				$("#share_File")[0].reset();
 				$("#share_Comments").css('display', 'none');
 				$("#share_Length").css('display', 'none');
@@ -217,7 +313,13 @@ $("#share_File").on('submit', function(e) {
 				sticky: false
 			});
 			// list the users again
-			list_added_users();
+			if($.trim(response) == 'success') {
+				list_added_users();
+				list_added_items();
+				setTimeout(function() {
+					window.location.href=pageurl+"Shared";
+				}, 5000);
+			}
 		}
 	});
 });
@@ -229,7 +331,7 @@ function add_user(Uid, UName) {
 	$.ajax({
 		type: 'POST',
 		data: 'Action=doAddUser&Uid='+Uid+'&UName='+UName,
-		url: pageurl+"doProcess/doAdd/doUser",
+		url: pageurl+"doShare/doAdd/doUser",
 		success: function(response) {
 			$('.gritter-item-wrapper').css("display","block");
 			$.gritter.add({
@@ -249,7 +351,7 @@ function remove_user(Uid, UName) {
 	$.ajax({
 		type: 'POST',
 		data: 'Action=doRemove&Uid='+Uid+'&UName='+UName,
-		url: pageurl+"doProcess/doRemove/execRemove",
+		url: pageurl+"doShare/doRemove/execRemove",
 		success: function(response) {
 			$('.gritter-item-wrapper').css("display","block");
 			$.gritter.add({
@@ -267,7 +369,7 @@ function list_added_users() {
 	$.ajax({
 		type: 'POST',
 		data: 'Action=listUsers&',
-		url: pageurl+"doProcess/doList/listUsers",
+		url: pageurl+"doShare/doList/listUsers",
 		success: function(response) {
 			$(".users_List").html(response);
 			confirm_share();
@@ -281,7 +383,7 @@ function confirm_share() {
 	$.ajax({
 		type: 'POST',
 		data: 'Action=countUsers&',
-		url: pageurl+"doProcess/doList/countUsers",
+		url: pageurl+"doShare/doList/countUsers",
 		success: function(response) {
 			$(".confirm_Text").html(response);
 			if($(".confirm_Text").text() != "Sorry! You have not yet added any users to the list.") {
@@ -289,25 +391,82 @@ function confirm_share() {
 				$("#share_Comments").css('display', 'block');
 				$("#share_Length").css('display', 'block');
 				$("#replace_permission").css('display', 'block');
+				$("#download_permission").css('display', 'block');
 			}
 		}
 	});
 }
 
-$("#cancelButton").on('click', function(e) {
-	$("#edit_item_div").hide('slow');
-	$("#itemForm")[0].reset();
-	e.preventDefault();
-});
+// add items to the file sharing list
+function add_share_item(Uid, Item_Name) {
+	$.ajax({
+		type: 'POST',
+		data: 'Action=doAddItem&Uid='+Uid+'&Item_Name='+Item_Name,
+		url: pageurl+"doShare/doAdd/addItem",
+		success: function(response) {
+			$('.gritter-item-wrapper').css("display","block");
+			$.gritter.add({
+				title:	'New Notification',
+				text:	response,
+				sticky: false
+			});
+			list_added_items();
+		}
+	});
+}
 
-$('#itemForm').on('submit', function (e) {
+// list all the files added to the session list
+function list_added_items() {
+	$.ajax({
+		type: 'POST',
+		data: 'Action=listItems&',
+		url: pageurl+"doShare/doList/listItems",
+		success: function(response) {
+			$(".share_list").html(response);
+		}
+	});
+}
+
+// empty the list of ites that have been added to the share file list session 
+function empty_item_list(redir=null, item_id='000') {
+	if(confirm('Are you sure you want to empty the share items list?')) {
+		$.ajax({
+			type: 'POST',
+			data: 'Action=removeItems&item_id='+item_id,
+			url: pageurl+"doShare/doEmpty/emptySession",
+			success: function(response) {
+				$('.gritter-item-wrapper').css("display","block");
+				$.gritter.add({
+					title:	'New Notification',
+					text:	'Items sharing cart has been emptied.',
+					sticky: false
+				});
+				if(item_id !='000') {
+					$(".shared_list_"+item_id).hide();
+				} else {
+					$(".share_listing").slideUp();
+				}
+				if(redir=='reload') {
+					window.location.href=pageurl+"ItemsStream";
+				}
+				list_added_items();
+			}
+		});
+	}
+}
+
+// this section enables a user to edits the file or folder information
+// by this you can change the name and description of that 
+// particular file. The form is submitted
+// to the action attribute specified on the form
+$('#editForm').on('submit', function (e) {
 	e.preventDefault();
 	$("#result_div").html("");
 	$("#submitButton").attr("disabled", true);
 	$.ajax({
 		type: 'POST',
-		url: $("#itemForm").attr('action'),
-		data: $('#itemForm').serialize(),
+		url: $("#editForm").attr('action'),
+		data: $('#editForm').serialize(),
 		beforeSend: function() {
 			$("#loading_div").show();
 		}, success: function(response) {
@@ -318,47 +477,9 @@ $('#itemForm').on('submit', function (e) {
 	});
 });
 
-$("#addFolder").validate({
-	rules:{
-		folder_name:{
-			required: true,
-			minlength:2,
-			maxlength:255
-		},
-		parent_folder:{
-			required:false
-		}
-	},
-	errorClass: "help-inline",
-	errorElement: "span",
-	highlight:function(element, errorClass, validClass) {
-		$(element).parents('.control-group').addClass('error');
-	},
-	unhighlight: function(element, errorClass, validClass) {
-		$(element).parents('.control-group').removeClass('error');
-		$(element).parents('.control-group').addClass('success');
-	}
-});
-
-$("#itemForm").validate({
-	rules:{
-		item_name:{
-			required: true,
-			minlength:2,
-			maxlength:255
-		}
-	},
-	errorClass: "help-inline",
-	errorElement: "span",
-	highlight:function(element, errorClass, validClass) {
-		$(element).parents('.control-group').addClass('error');
-	},
-	unhighlight: function(element, errorClass, validClass) {
-		$(element).parents('.control-group').removeClass('error');
-		$(element).parents('.control-group').addClass('success');
-	}
-});
-
+// this section processes the creation of a new folder
+// serializes the form and submits all the input and textarea fields 
+// to the action attribute specified on the form
 $('#addFolder').on('submit', function (e) {
 	e.preventDefault();
 	$("#result_div").html("");
@@ -376,3 +497,76 @@ $('#addFolder').on('submit', function (e) {
 		}
 	});
 });
+
+// this section helps the admin to create a new user to the 
+// list of users on the web application
+// it also aids in updating the user information.
+// the advantage is that, it users the action attribute and the form serialize
+$('#doProcessUser').on('submit', function (e) {
+	e.preventDefault();
+	$(".addbutton").attr("disabled", true);
+	$.ajax({
+		type: 'POST',
+		url: $("#doProcessUser").attr('action'),
+		data: $('#doProcessUser').serialize(),
+		beforeSend: function() {
+			$(".j-response").html('<div class="alert alert-warning alert-md alert-block">Please wait <img src="'+pageurl+'/assets/images/loadings.gif" align="absmiddle" /></div>');
+		}, success: function(response) {
+			$(".j-response").html(response);
+			$(".addbutton").removeAttr("disabled", true);
+		}
+	});
+});
+
+// regenerate a random string to be used as a password
+$("#regeratePassword").on('click', function(e) {
+	$.ajax({
+		type: 'POST',
+		url: pageurl+"doAuth/doGeratePassword",
+		data: "Action=doGeratePassword",
+		success: function(response) {
+			$("#password").val(response);
+		}
+	});
+});
+
+// change the user upload status
+function change_upload_status(user_id, upload_status) {
+	if(confirm("Are you sure you want to change user upload status?")) {
+		$.ajax({
+			type: 'POST',
+			url: pageurl+"doUpdate/doEffectChange/uploadStatus",
+			data: "Action=doUploadState&user_id="+user_id+"&status="+upload_status,
+			success: function(response) {
+				$("#file_upload_status").html(response);
+			}
+		});
+	}
+}
+
+// update the user upload disk usage
+function update_user_disk_usage(user_id) {
+	var usage_limit = $("#limit_num").val();
+	$.ajax({
+		type: 'POST',
+		url: pageurl+"doUpdate/doEffectChange/uploadLimit",
+		data: "Action=doUploadLimit&user_id="+user_id+"&usage_limit="+usage_limit,
+		success: function(response) {
+			$(".total_file_uploads").html(response);
+		}
+	});
+}
+
+// update the office disk usage information
+function update_total_disk_usage(update_type, office_id, update_div) {
+	var daily_usage = $("#daily_usage").val();
+	var overall_usage = $("#overall_usage").val();
+	$.ajax({
+		type: 'POST',
+		url: pageurl+"doUpdateOffice/doEffectChange/uploadLimit",
+		data: "Action=doUploadLimit&office_id="+office_id+"&daily_usage="+daily_usage+"&overall_usage="+overall_usage+"&update_type="+update_type,
+		success: function(response) {
+			$("."+update_div).html(response);
+		}
+	});
+}

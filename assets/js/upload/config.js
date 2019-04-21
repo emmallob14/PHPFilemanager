@@ -50,7 +50,7 @@ $(function(){
 				window.location.href=redir;
 		  }, 3000);
 	  } else {
-		  ui_add_log('Upload of file #' + id + ' COMPLETED', 'success');
+		  ui_add_log(data.message, 'success');
 	  }	  
       ui_multi_update_file_status(id, 'success', 'Upload Complete');
       ui_multi_update_file_progress(id, 100, 'success', false);
