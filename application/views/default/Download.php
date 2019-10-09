@@ -20,7 +20,7 @@ IF(confirm_url_id(1)) {
 			'_item_listing', '*', 
 			ARRAY(
 				'item_download_link'=>"='$download_slug'",
-				'user_id'=>"='".$session->userdata(":lifeID")."'",
+				'user_id'=>"='".$session->userdata(UID_SESS_ID)."'",
 				'item_status'=>"='1'"
 		));
 		IF($DB->num_rows($QueryString) == 1) {

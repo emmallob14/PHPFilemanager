@@ -144,14 +144,14 @@ class DB {
 			if(!empty($where_clause) AND is_array($where_clause)) {
 				# pick the data presented by the user and use it to complete the form
 				foreach($where_clause as $field=>$value) {
-					$fields[] = sprintf("`%s`%s", $field, $value);				
+					$fields[] = sprintf("%s %s", $field, $value);				
 				}
 			
 				$where_list = join(' AND ', $fields);
 				
-				$query_string = sprintf("SELECT %s FROM `%s` WHERE %s %s", $columns, $table, $where_list, $additional);
+				$query_string = sprintf("SELECT %s FROM %s WHERE %s %s", $columns, $table, $where_list, $additional);
+				$query_string = str_replace("AND OR", "OR", $query_string);
 				
-				//print $query_string;
 				$stmt = $this->db->prepare("$query_string");
 				$stmt->execute();
 				$results = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -253,7 +253,7 @@ class DB {
 				# join the various compartments into a single query string
 				$query_string = sprintf("DELETE FROM `%s` WHERE %s", $table, $field_list);
 				
-				print $query_string;
+				
 				
 				$stmt = $this->db->prepare("$query_string");
 				$stmt->execute();

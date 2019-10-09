@@ -15,6 +15,7 @@ if(!$admin_user->logged_InControlled()) {
 <link rel="stylesheet" href="<?php print $config->base_url(); ?>assets/css/bootstrap.min.css" />
 <meta name="author" content="<?php print config_item('developer'); ?>">
 <link rel="stylesheet" href="<?php print $config->base_url(); ?>assets/css/bootstrap-responsive.min.css" />
+<link rel="shortcut icon" href="<?php print $config->base_url(); ?>assets/onepage/assets/ico/favicon.png">
 <link rel="stylesheet" href="<?php print $config->base_url(); ?>assets/css/matrix-login.css" />
 <link href="<?php print $config->base_url(); ?>assets/font-awesome/css/font-awesome.css" rel="stylesheet" />
 
@@ -43,7 +44,7 @@ if(!$admin_user->logged_InControlled()) {
 			<input type="hidden" id="change_user_password_" name="change_user_password_">
 			<div class="form-actions">
 				<span class="pull-left"><a href="<?php PRINT (ISSET($_SERVER["HTTP_REFERER"])) ? xss_clean($_SERVER["HTTP_REFERER"]) : $config->base_url()."Dashboard"; ?>" class="flip-link btn btn-success" id="to-login">&laquo; Go Back</a></span>
-				<span class="pull-right"><button id="submitButton" type="submit" class="btn btn-success" > Change Password</button></span>
+				<span class="pull-right"><button id="submitButton" type="submit" class="btn btn-success" > <i class="icon icon-key"></i> Change Password</button></span>
 			</div>
 		</form>
 		<div id="formResult"></div>

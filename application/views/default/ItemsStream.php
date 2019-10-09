@@ -2,13 +2,13 @@
 $PAGETITLE = "Files & Folder Listing";
 REQUIRE "TemplateHeader.php";
 GLOBAL $notices;
-$session->unset_userdata('RootFolder');
+$session->unset_userdata(ROOT_FOLDER);
 ?>
 <!--main-container-part-->
 <div id="content">
 <!--breadcrumbs-->
 <div id="content-header">
-    <div id="breadcrumb"> <a href="<?php print $config->base_url(); ?>Dashboard" title="Go to Home" class="tip-bottom"><i class="icon-home"></i> Home</a> <i class="icon-list"></i> Files & Folder Listing</div>
+    <div id="breadcrumb"> <a href="<?php print $config->base_url(); ?>Dashboard" title="Go to Home" class="tip-bottom"><i class="icon-home"></i> Home</a> <i class="icon-list"></i> <?php print $PAGETITLE; ?></div>
 </div>
 <!--End-breadcrumbs-->
 <!--Action boxes-->

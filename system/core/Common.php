@@ -132,16 +132,16 @@ if ( ! function_exists('list_folder_items'))
 	 */
 if ( ! function_exists('_str_to_array'))
 {
-	function _str_to_array($email)
+	function _str_to_array($item_list)
 	{
-		if ( ! is_array($email))
+		if ( ! is_array($item_list))
 		{
-			return (strpos($email, ',') !== FALSE)
-				? preg_split('/[\s,]/', $email, -1, PREG_SPLIT_NO_EMPTY)
-				: (array) trim($email);
+			return (strpos($item_list, ',') !== FALSE)
+				? preg_split('/[\s,]/', $item_list, -1, PREG_SPLIT_NO_EMPTY)
+				: (array) trim($item_list);
 		}
 
-		return $email;
+		return $item_list;
 	}
 }
 
@@ -243,7 +243,7 @@ if ( ! function_exists('load_core')) {
 				require_once($path.$directory.'/'.$file.'.php');				
 				break;
 			} else {
-				echo 'The '.$file.' file does not exist.';
+				echo 'The core file with name '.$file.' does not exist.';
 				exit(3); // EXIT_CONFIG
 			}
 		}
@@ -324,6 +324,26 @@ if ( ! function_exists('load_file')) {
 }
 
 
+// ------------------------------------------------------------------------
+if ( ! function_exists('load_lang')) {
+	
+	function load_lang($file, $directory = 'language/english') {
+		
+		// Submit the file name to the _str_to_array($file) function 
+		$file = _str_to_array($file);
+		
+		// Look for the class in the native system/helpers folder
+		foreach($file as $filename) {
+			
+			if (file_exists(BASEPATH.$directory.'/'.$filename.'_lang.php')) {				
+				require_once(BASEPATH.$directory.'/'.$filename.'_lang.php');	
+			} else {
+				echo 'The '.$file.' language file does not exist.';
+				exit(3); // EXIT_CONFIG
+			}
+		}
+	}
+}
 
 // ------------------------------------------------------------------------
 

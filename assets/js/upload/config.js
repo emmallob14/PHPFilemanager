@@ -9,7 +9,9 @@ $(function(){
    */
   $('#drag-and-drop-zone').dmUploader({ //
     url: pageurl+'doUpload',
-    maxFileSize: 15000000, // 15 Megs 
+    maxFileSize: 2000000000, // 15 Megs 
+	auto: true,
+	queue: false,
     onDragEnter: function(){
       // Happens when dragging something over the DnD area
       this.addClass('active');
@@ -45,7 +47,7 @@ $(function(){
 	  // A file was successfully uploaded
       if(replace != "undefined") {
 		  var redir = $("#replace_file").attr('content');
-		  ui_add_log('The uploaded file has replace the File. You will be redirected in 3 seconds', 'success');
+		  ui_add_log('The uploaded file has replaced the File. You will be redirected in 3 seconds', 'success');
 		  setTimeout(function() {
 				window.location.href=redir;
 		  }, 3000);

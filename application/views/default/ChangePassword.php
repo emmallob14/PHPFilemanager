@@ -6,10 +6,6 @@ if(!$admin_user->logged_InControlled()) {
 	require "Login.php";
 	exit(-1);
 }
-if($admin_user->changed_password_first()) { 
-	header("Location: ".$config->base_url()."Dashboard");
-	exit(-1);
-}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -19,6 +15,7 @@ if($admin_user->changed_password_first()) {
 <link rel="stylesheet" href="<?php print $config->base_url(); ?>assets/css/bootstrap.min.css" />
 <meta name="author" content="<?php print config_item('developer'); ?>">
 <link rel="stylesheet" href="<?php print $config->base_url(); ?>assets/css/bootstrap-responsive.min.css" />
+<link rel="shortcut icon" href="<?php print $config->base_url(); ?>assets/onepage/assets/ico/favicon.png">
 <link rel="stylesheet" href="<?php print $config->base_url(); ?>assets/css/matrix-login.css" />
 <link href="<?php print $config->base_url(); ?>assets/font-awesome/css/font-awesome.css" rel="stylesheet" />
 <meta name="pageurl" id="pageurl" value="<?php print $config->base_url(); ?>" content="<?php print $config->base_url(); ?>">
@@ -46,7 +43,7 @@ if($admin_user->changed_password_first()) {
 			<input type="hidden" id="change_password_first" name="change_password_first">
 			<input type="hidden" id="change_password" name="change_password">
 			<div class="form-actions">
-				<span class="pull-right"><button id="submitButton" type="submit" class="btn btn-success" > Change Password</button></span>
+				<span class="pull-right"><button id="submitButton" type="submit" class="btn btn-success" ><i class="icon icon-key"></i> Change Password</button></span>
 			</div>
 		</form>
 		<div id="formResult"></div>

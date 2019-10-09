@@ -8,6 +8,14 @@ DEFINE('BASEPATH', $system_folder.DIRECTORY_SEPARATOR);
 DEFINE('APPPATH', $application_folder.DIRECTORY_SEPARATOR);
 DEFINE('VIEWPATH', $application_folder.DIRECTORY_SEPARATOR);
 
+function forceHttps() {
+	if($_SERVER["SERVER_PORT"] !==433 && (empty($_SERVER["HTTPS"]) || $_SERVER["HTTPS"]=="off")) {
+		//header("Location: https://".$_SERVER["HTTP_HOST"].$_SERVER["REQUEST_URI"]."");
+	}
+}
+
+forceHttps();
+
 /*
 	replace array indexes:
 	1) fix windows slashes
@@ -37,14 +45,14 @@ IF (URL_ROOT != '/') $URL = SUBSTR($URL, STRLEN(URL_ROOT));
 $URL = TRIM($URL, '/');
 
 # 404 if trying to call a real file
-IF ( FILE_EXISTS(DOC_ROOT.'/'.$URL) && ($_SERVER['SCRIPT_FILENAME'] != DOC_ROOT.$URL) && ($URL != '') && ($URL != 'index.php') )
+IF ( FILE_EXISTS(DOC_ROOT.'/'.$URL) && ($_SERVER['SCRIPT_FILENAME'] != DOC_ROOT.$URL) && ($URL != '') && ($URL != 'Index.php') )
 	DIE(show_error('Page Not Found', 'Sorry the page you are trying to view does not exist on this server'));
 
 /*
 	If $url is empty of default value, set action to 'default'
 	otherwise, explode $URL into an array
 */
-$SITEURL = (($URL == '') || ($URL == 'index.php') || ($URL == 'index.html')) ? ARRAY('index') : EXPLODE('/', html_entity_decode($URL));
+$SITEURL = (($URL == '') || ($URL == 'Index.php') || ($URL == 'Index.html')) ? ARRAY('Index') : EXPLODE('/', html_entity_decode($URL));
 
 /*
 	I strip out non word characters from $SITEURL[0] as the include
@@ -64,6 +72,7 @@ $includeFile = config_item('default_view_path').PREG_REPLACE('/[^\w_]-/','',$SIT
 $admin_user = load_class('users', 'models');
 $directory = load_class('directories', 'models');
 $offices = load_class('offices', 'models');
+$user_agent = load_class('user_agent', 'libraries');
 
 #Check the site status
 GLOBAL $SITEURL;

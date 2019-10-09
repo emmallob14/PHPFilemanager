@@ -1,16 +1,17 @@
 <?php 
-
+// ensure this file is being included by a parent file
+if( !defined( 'SITE_URL' ) && !defined( 'SITE_DATE_FORMAT' ) ) die( 'Restricted access' );
 class Notifications {
 	
 	public $result;
 	
 	public function __construct() {
 		
-		global $DB;
+		global $DB, $session;
 		
 		$this->db = $DB;
 		$this->user_agent = load_class('User_agent', 'libraries');
-		$this->session = load_class('session', 'libraries\Session');
+		$this->session = $session;
 		$this->folder = load_class('Directories', 'models');
 		$this->offices = load_class('offices', 'models');
 	}
@@ -91,18 +92,17 @@ class Notifications {
 		$this->can_continue = true;
 		
 		if($notices == 'disk_full') {
-			if(($this->folder->return_usage()->used_size) >= $this->offices->item_by_id('disk_space', $this->session->userdata("officeID"))) {
+			if(($this->folder->return_usage()->used_size) >= $this->offices->item_by_id('disk_space', $this->session->userdata(OFF_SESSION_ID))) {
 				$this->result = "<div class='alert btn-block alert-danger'>Sorry! You have reached your maximum disk space capacity. You must delete some of your files to be able to continue.</div>";
 				$this->can_continue = false;
 			}
 		} elseif($notices == 'daily_usage') {
-			if(($this->folder->return_usage()->today_used_raw) >= $this->offices->item_by_id('daily_upload', $this->session->userdata("officeID"))) {
+			if(($this->folder->return_usage()->today_used_raw) >= $this->offices->item_by_id('daily_upload', $this->session->userdata(OFF_SESSION_ID))) {
 				$this->result = "<div class='alert btn-block alert-danger'>Sorry! You have reached your maximum file uploads for today.</div>";
 				$this->can_continue = false;
 			}
 		}
 		
 		return $this;
-		
 	}
 }

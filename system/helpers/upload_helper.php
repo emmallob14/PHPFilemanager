@@ -28,7 +28,7 @@ if ( ! function_exists('file_size_convert'))
 	function file_size_convert($str)
 	{
 		$result = 0;
-		$bytes = (PREG_MATCH("/^[0-9]+$/", $str)) ? $str : filesize($str);
+		$bytes = (PREG_MATCH("/^[0-9]+$/", $str)) ? $str : @filesize($str);
 		$bytes = floatval($bytes);
         $arBytes = array(
             0 => array(
@@ -75,7 +75,7 @@ if ( ! function_exists('file_size'))
 	 */
 	function file_size($str)
 	{
-		$bytes = filesize($str);
+		$bytes = @filesize($str);
 		$bytes = floatval($bytes);
         $result = strval(round(($bytes / 1024), 2));
 		

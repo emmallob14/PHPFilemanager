@@ -1,9 +1,8 @@
-<?php 
-#initial 
-global $DB, $session, $admin_user, $offices;
+<?php
+#call the GLOBAL function 
+GLOBAL $SITEURL, $config, $DB, $admin_user, $session, $offices;
 # confirm that the user is logged in 
 IF($admin_user->logged_InControlled()) {
-	
 	$directory = load_class('directories', 'models');
 	#confirm that the user has parsed this value
 	IF(ISSET($SITEURL[1])) {
@@ -46,11 +45,9 @@ IF($admin_user->logged_InControlled()) {
 				PRINT "<div class='alert alert-danger'>Sorry! You to do not have permission to perform this operation.</div>";
 			}			
 		}
-		
-		
-		
+				
 		#UPDATE THE OFFICE UPLOADS LIMIT
-		IF(($SITEURL[1] == "doEffectChange") AND ISSET($SITEURL[2]) AND ISSET($_POST["Action"])) {
+		ELSEIF(($SITEURL[1] == "doEffectChange") AND ISSET($SITEURL[2]) AND ISSET($_POST["Action"])) {
 			IF(($SITEURL[2] == "uploadLimit") AND $_POST["Action"] == "doUploadLimit") {
 				// ASSIGN SOME VARIABLES
 				$office_id = xss_clean($_POST["office_id"]);
@@ -100,7 +97,7 @@ IF($admin_user->logged_InControlled()) {
 								$gritter_msg = "Sorry! Permission Denied";
 							}
 						} ELSEIF($update_type == "overall") {
-							IF($admin_user->confirm_admin_user()) {
+							IF($admin_user->confirm_super_user()) {
 								// UPDATE THE USER UPLOAD STATUS
 								$DB->just_exec("UPDATE _offices SET disk_space='$overall_usage' WHERE unique_id='$office_id'");
 								// PRINT INFORMATION
@@ -119,6 +116,34 @@ IF($admin_user->logged_InControlled()) {
 			}
 		}
 		
+		#UPDATE THE OFFICE UPLOADS LIMIT
+		ELSEIF(($SITEURL[1] == "doChangeStatus") AND ISSET($_POST["Action"])) {
+			IF($_POST["Action"] == "doChangeStatus") {
+				// ASSIGN SOME VARIABLES
+				$office_id = xss_clean($_POST["office_id"]);
+				$status = xss_clean($_POST["status"]);
+				$office_id_to_update = $session->userdata("office_id_to_update");
+				// CONFIRM THAT THE USER ID PARSED MATCHES THE ONE SET IN THE SESSION
+				IF($office_id != $office_id_to_update) {
+					PRINT "<div class='alert alert-danger'>Sorry! An invalid session token parsed.</div>";
+				} ELSE {
+					// UPDATE THE OFFICE STATUS
+					$off_id = $offices->item_by_id("id", $office_id);
+					$DB->just_exec("UPDATE _offices SET activated_on=now(), activated_by='{$admin_user->return_username()}', status='$status' WHERE id='$off_id'");
+					// DO ACTIVATE / DE ACTIVATE THE ASSIGNED ADMIN USER ACCOUNTS
+					IF(!$status) {
+						$DB->just_exec("UPDATE _admin SET activated=0 WHERE office_id='$off_id'");
+					}
+					// GET THE CURRENT USER UPLOAD STATUS
+					$office_info = $offices->item_by_id("status", $office_id);
+					$current_status = ($office_info) ? 0 : 1;
+					$status_button = (!$current_status) ? "btn-success" : "btn-danger";
+					$status_comment = (!$current_status) ? "<i class='icon icon-thumbs-up'></i> ACTIVE" : "<i class='icon icon-thumbs-down'></i> INACTIVE";
+					// PRINT THE NEW INFORMATION
+					PRINT "<span onclick=\"change_office_status('$office_id','$current_status')\" class=\"btn $status_button\">$status_comment</span>";
+				}
+			}
+		}
 
 	}
 } ELSE {

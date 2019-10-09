@@ -53,7 +53,7 @@ $user_agent = load_class('user_agent', 'libraries');
 									$NPassword = $encrypt->password_hash($NewPassword);
 									
 									// update the information 
-									$DB->just_exec("UPDATE _admin SET password='$NPassword', lastresetdate='".TIME()."' WHERE username='$Username' AND admin_deleted='0'");
+									$DB->just_exec("UPDATE _admin SET password='$NPassword', lastresetdate='".TIME()."' WHERE email='$Username' AND admin_deleted='0'");
 									
 									// UPDATE THE DATABASE AND SET THE TOKEN STATUS AS EXPIRED
 									$DB->query("UPDATE _admin_request_change SET token_status='USED', request_token=NULL, change_date=now() WHERE request_token='$PasswordToken' AND username='$Username'");

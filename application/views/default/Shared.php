@@ -17,7 +17,7 @@ if(confirm_url_id(1, 'Slug')) {
 					'_shared_listing', '*', 
 					ARRAY(
 						'shared_slug'=>"='$item_slug'",
-						'shared_with'=>"LIKE '%/".$session->userdata(":lifeID")."/%'",
+						'shared_with'=>"LIKE '%/".$session->userdata(UID_SESS_ID)."/%'",
 						'shared_item_id'=>"='$item_id'",
 						'shared_deleted'=>"='0'",
 				))) == 1) {
@@ -81,9 +81,9 @@ REQUIRE "TemplateHeader.php";
 				$shared_Files = $DB->query("SELECT * FROM _shared_listing
 					WHERE 
 					(
-						(shared_by='{$session->userdata(":lifeID")}') 
+						(shared_by='{$session->userdata(UID_SESS_ID)}') 
 					OR 
-						(shared_with LIKE '%/{$session->userdata(":lifeID")}/%')
+						(shared_with LIKE '%/{$session->userdata(UID_SESS_ID)}/%')
 					) AND shared_deleted='0'
 				");
 				
@@ -101,7 +101,7 @@ REQUIRE "TemplateHeader.php";
 				  <a class="btn btn-success" href="<?php print $config->base_url(); ?>Shared/Slug/<?php print $Files["shared_slug"]; ?>/Id/<?php print $Files["shared_item_id"]; ?>" title="View full details of file"><i class="icon icon-eye-open"></i></a>
 				  <?php if($Files["shared_expiry"] > time()) { ?>
 					  <?php if($Files["shared_status"] == 0) { ?>
-						<?php if($Files["shared_by"] == $session->userdata(":lifeID")) { ?>
+						<?php if($Files["shared_by"] == $session->userdata(UID_SESS_ID)) { ?>
 							<a href="#" class="btn btn-warning" title="This file shared has been paused, Do you wish to continue sharing?" id="modifyItem" onclick="process_item('start', '<?php print $Files["id"]; ?>', '<?php print $Files["shared_type"]; ?>', '<?php print $Files["shared_by"]; ?>', 'REDIR', '<?php print $config->base_url(); ?>Shared')"><i class="icon icon-play"></i></a>
 						<?php } ?>
 					  <?php } ?>
@@ -112,7 +112,7 @@ REQUIRE "TemplateHeader.php";
 							<?php } ?>
 						<?php } ?>
 					  <?php } ?>
-					  <?php if($Files["shared_by"] == $session->userdata(":lifeID")) { ?>
+					  <?php if($Files["shared_by"] == $session->userdata(UID_SESS_ID)) { ?>
 						<?php if($Files["shared_status"] == 1) { ?>
 							<a href="#" class="btn btn-warning" title="Do you wish to discontinue sharing this file(s)?." id="modifyItem" onclick="process_item('stop', '<?php print $Files["id"]; ?>', '<?php print $Files["shared_type"]; ?>', '<?php print $Files["shared_by"]; ?>', 'REDIR', '<?php print $config->base_url(); ?>Shared')"><i class="icon icon-stop"></i></a>
 						<?php } ?>
@@ -145,7 +145,7 @@ REQUIRE "TemplateHeader.php";
 					</div>
 					<?php foreach($shared_Files as $Files) { ?>
 					<?php if($Files["shared_many"] == "FALSE") { ?>
-					<ul class="list-unstyled p-2 d-flex flex-column col" id="files" style="min-height:200px;max-height:200px;overflow:scroll;">
+					<ul class="list-unstyled p-2 d-flex flex-column col" id="files" style="min-height:200px;max-height:400px;overflow:scroll;">
 					  <li><strong>ITEM NAME: </strong> <span class='item_name'><?php print $directory->item_by_id2('item_title', $item_id); ?></span></li>
 					  <li><strong>ITEM SIZE: </strong> <?php print $directory->item_by_id2('item_size', $item_id); ?></li>
 					  <li><strong>ITEM TYPE: </strong> <?php print $ITEM_TYPE; ?></li>
@@ -154,7 +154,7 @@ REQUIRE "TemplateHeader.php";
 					  <li><strong>DATE UPLOADED: </strong> <?php print $directory->item_by_id2('date_added', $item_id); ?></li>
 					  <li><strong>UPLOADED BY: </strong> <?php print $directory->item_by_id2('item_users', $item_id); ?></li>
 					  <li><strong>DOWNLOADS: </strong> <?php print $directory->item_by_id2('item_downloads', $item_id); ?></li>
-					  <li><?php if($directory->item_by_id2('user_id', $item_id) == $session->userdata(":lifeID")) { ?>
+					  <li><?php if($directory->item_by_id2('user_id', $item_id) == $session->userdata(UID_SESS_ID)) { ?>
 						<span class="span6 pull-left"><a class="btn btn-success" style="color:#fff" href="<?php print $config->base_url(); ?>ItemStream/Id/<?php print $directory->item_by_id2('item_unique_id', $item_id); ?>/Edit">EDIT FILE</a></span>
 					  <?php } ?>
 					  <?php if($Files["shared_expiry"] > time()) { ?>
@@ -164,6 +164,7 @@ REQUIRE "TemplateHeader.php";
 						<?php } ?>
 					  <?php } ?>
 					  <?php } ?>
+					  </ul>
 					  <?php } ELSE { ?>
 					  
 						<table class="table table-bordered">
@@ -180,36 +181,38 @@ REQUIRE "TemplateHeader.php";
 							$shareItemList = $DB->query("SELECT * FROM _shared_listing_detail WHERE shared_slug='$item_slug'");
 							FOREACH($shareItemList AS $ItemList) {
 								PRINT "<tr class='shared_list_{$ItemList["shared_item_id"]}'>";
-								PRINT "<td>".$directory->item_by_id('item_title', $ItemList["shared_item_id"])."<br>";
+								PRINT "<td>".$directory->item_by_id2('item_title', $ItemList["shared_item_id"])."<br>";
 								
-								IF($session->userdata(":lifeID") == $Files["shared_by"]) {
-									PRINT "<a title=\"View this file contents\" class=\"btn btn-success\" href=\"{$config->base_url()}ItemStream/Id/".$directory->item_by_id2('item_unique_id', $ItemList["shared_item_id"])."\"><i class=\"icon-eye-open\"> </i></a>&nbsp;";
+								IF($session->userdata(UID_SESS_ID) == $Files["shared_by"]) {
+									PRINT "<a title=\"View this file contents\" class=\"btn btn-warning\" href=\"{$config->base_url()}ItemStream/Id/".$directory->item_by_id2('item_unique_id', $ItemList["shared_item_id"])."\"><i class=\"icon-eye-open\"> </i></a>&nbsp;";
+								} ELSE {
+									PRINT "<a title=\"View this file contents\" class=\"btn btn-warning\" href=\"https://docs.google.com/viewer?url={$config->base_url()}assets/uploads/".$directory->item_by_id2('item_unique_id', $ItemList["shared_item_id"])."&embedded=true\" target=\"_blank\"><i class=\"icon-eye-open\"> </i></a>&nbsp;";
 								}
 								
 								IF($Files["shared_expiry"] > time()) {
 									IF($Files["download_file"] == 'ALLOW') {
-										PRINT "<a target=\"_blank\" title=\"Download this file\" class=\"btn btn-primary\" href=\"{$config->base_url()}Download/{$ItemList["item_download_link"]}\"><i class=\"icon-download\"> </i></a>&nbsp;";
+										PRINT "<a target=\"_blank\" title=\"Download this file\" class=\"btn btn-primary\" href=\"{$config->base_url()}Download/{$directory->item_by_id2('item_download_link', $ItemList["shared_item_slug"])}/Shared/{$Files["download_link"]}\"><i class=\"icon-download\"> </i></a>&nbsp;";
 									}
 								}
 								
 								// TO BE WORKED ON LATER ON IN FUTURE
 								//IF($Files["shared_expiry"] > time()) {
 									//IF($Files["replace_file"] == 'ALLOW') {
-										//PRINT "<a title=\"Replace this file\" class=\"btn btn-warning\" href=\"{$config->base_url()}Upload/Replace/".base64_encode($directory->item_by_id('id', $ItemList["shared_item_id"]))."/{$ItemList["shared_item_id"]}\"><i class=\"icon-upload\"> </i></a>&nbsp;";
+										//PRINT "<a title=\"Replace this file\" class=\"btn btn-warning\" href=\"{$config->base_url()}Upload/Replace/".base64_encode($directory->item_by_id2('id', $ItemList["shared_item_id"]))."/{$ItemList["shared_item_id"]}\"><i class=\"icon-upload\"> </i></a>&nbsp;";
 								//	}
 								//}
 								
 								PRINT "</td>";
-								PRINT "<td>".$directory->item_by_id('item_size', $ItemList["shared_item_id"])."</td>";
-								PRINT "<td>".$directory->item_by_id('item_ext', $ItemList["shared_item_id"])."</td>";
-								PRINT "<td>".$directory->item_by_id('item_description', $ItemList["shared_item_id"])."</td>";
+								PRINT "<td>".$directory->item_by_id2('item_size', $ItemList["shared_item_id"])."</td>";
+								PRINT "<td>".$directory->item_by_id2('item_ext', $ItemList["shared_item_id"])."</td>";
+								PRINT "<td>".$directory->item_by_id2('item_description', $ItemList["shared_item_id"])."</td>";
 								PRINT "</tr>";
 							}
 							?>
 						  </tbody>
 						</table>
-					  <?PHP } ?>
-					</ul>
+					<?PHP } ?>
+					
 					<?php if($Files["shared_many"] == "FALSE") { ?>
 						<?php if($Files["replace_file"] == "ALLOW") { ?>
 							<?php if($Files["shared_expiry"] > time()) { ?>
@@ -294,7 +297,7 @@ REQUIRE "TemplateHeader.php";
 						<?php
 						// get all the users that the file has been shared with 
 						foreach($_explode_users as $users) {
-							if(preg_match("/^[0-9]+$/", $users) and $users != $session->userdata(":lifeID")) {
+							if(preg_match("/^[0-9]+$/", $users) and $users != $session->userdata(UID_SESS_ID)) {
 						?>
 						<li title="Click to reference <?php print $admin_user->get_details_by_id($users)->funame; ?> in the Chat Comment" id="user-<?php print $users; ?>" class="online"><a class="add_user" onclick="reference_name('<?php print $admin_user->get_details_by_id($users)->funame; ?>');" href="#"><img alt="" src="<?php print $config->base_url(); ?>assets/images/demo/av1.jpg" /> <span><?php print $admin_user->get_details_by_id($users)->funame; ?></span></a></li>
 						<?php } } ?>

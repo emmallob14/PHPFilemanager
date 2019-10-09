@@ -56,9 +56,7 @@ function fetch_comments() {
 			$(".comments_responses").html(response);
 			$('#chat-messages').animate({ scrollTop: inner.height() },1000);
 			// fetch new comments after every 10 seconds
-			setTimeout(function() {
-				fetch_comments();
-			}, 10000);
+			setTimeout(function() { fetch_comments(); }, 10000);
 		}
 	});
 }

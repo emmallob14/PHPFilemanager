@@ -1,6 +1,6 @@
 <?php
 #call the GLOBAL function 
-GLOBAL $SITEURL, $config, $DB, $admin_user, $session;
+GLOBAL $SITEURL, $config, $DB, $admin_user, $session, $offices;
 # confirm that the user is logged in 
 IF($admin_user->logged_InControlled()) {
 	#confirm that the user has parsed this value
@@ -24,7 +24,7 @@ IF($admin_user->logged_InControlled()) {
 				$office_id = (INT)xss_clean($_POST["office_id"]);
 				$user_id = $session->userdata("user_id");
 				$admin_access = $session->userdata("admin_access");
-				$admin_logged = $admin_user->return_username();
+				$admin_logged = UCFIRST($admin_user->return_username());
 				
 				# validate the user information
 				IF(STRLEN($firstname) < 2) {
@@ -39,10 +39,10 @@ IF($admin_user->logged_InControlled()) {
 					IF(ISSET($_POST["admin_role"]))
 						$admin_role = xss_clean($_POST["admin_role"]);
 					ELSE
-						$admin_role = (INT)$session->userdata(":lifeAdminRole");
+						$admin_role = (INT)$session->userdata(ROLE_SESS_ID);
 					
-					$new_user_id = xss_clean($_POST["user_id"]);
-					$old_user_id = xss_clean($user_id);
+					$new_user_id = UCFIRST(xss_clean($_POST["user_id"]));
+					$old_user_id = UCFIRST(xss_clean($user_id));
 					
 					#mechanism for the user level
 					IF($admin_role == 1001) {
@@ -103,16 +103,16 @@ IF($admin_user->logged_InControlled()) {
 								
 						#update the current session of the user
 						IF(($admin_user->return_username() == $old_user_id)) {
-							$session->set_userdata(":lifeAdminRole", $admin_role);
-							$session->set_userdata(":logedUsername", $new_user_id);
-							$session->set_userdata(":lifeEmail", $email);
-							$session->set_userdata(":lifeFullname", $firstname." ".$lastname);
+							$session->set_userdata(ROLE_SESS_ID, $admin_role);
+							$session->set_userdata(UNAME_SESS_ID, $new_user_id);
+							$session->set_userdata(USER_EMAIL, $email);
+							$session->set_userdata(USER_FULLNAME, $firstname." ".$lastname);
 						}
 						
 						PRINT "<div class='alert alert-success'>User information successfully updated.</div>.";
 						
 						#insert the new information into the activity logs table
-						$DB->just_exec("insert into _activity_logs set  office_id='$office_id', date_recorded=now(), admin_id='$admin_logged', activity_page='admin', activity_id='$new_user_id', activity_details='$new_user_id', activity_description='Admin details of $firstname $lastname has been updated.'");
+						$DB->just_exec("insert into _activity_logs set office_id='$office_id', date_recorded=now(), admin_id='$admin_logged', activity_page='admin', activity_id='$new_user_id', activity_details='$new_user_id', activity_description='Admin details of $firstname $lastname has been updated.'");
 						
 						IF($new_user_id != $old_user_id) {
 							redirect( $config->base_url()."Profile/$new_user_id", 'refresh:2000');

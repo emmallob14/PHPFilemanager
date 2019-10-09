@@ -1,17 +1,16 @@
 <?php
-#initial 
-global $DB, $functions, $libs;
+#call the GLOBAL function 
+GLOBAL $SITEURL, $config, $DB, $admin_user, $session, $offices;
 # confirm that the user is logged in 
 IF($admin_user->logged_InControlled()) {
 	#confirm that the user has parsed this value
 	IF(ISSET($SITEURL[1])) {
-				
 		// ADD USER TO THE SHARE LIST BEFORE PROCESSING
 		IF(($SITEURL[1] == "doAdd") AND ISSET($_POST["Action"]) AND ($_POST["Action"] == "doAddUser")) {
 			IF(($SITEURL[2] == "doUser") AND ISSET($_POST["Uid"])) {
 				#get the items and their values
 				$Uid = (INT)xss_clean($_POST["Uid"]);
-				$office_id = $session->userdata("officeID");
+				$office_id = $session->userdata(OFF_SESSION_ID);
 				$user_name = xss_clean($_POST["UName"]);
 				
 				#start a new session
@@ -112,7 +111,7 @@ IF($admin_user->logged_InControlled()) {
 		IF(($SITEURL[1] == "doShare") AND ISSET($_POST["Action"]) AND ($_POST["Action"] == "shareFile")) {
 			IF($session->userdata("shareList") AND ISSET($_POST["share_Length"])) {
 				#get the items and their values
-				$user_id = $session->userdata(":lifeID");
+				$user_id = $session->userdata(UID_SESS_ID);
 				$_users = $session->userdata("shareList");
 				$_users_list = "/$user_id";
 				foreach($_users as $user) {
@@ -121,11 +120,12 @@ IF($admin_user->logged_InControlled()) {
 				$_users_list = $_users_list."/";
 				
 				// get the user office id from the session 
-				$office_id = $session->userdata("officeID");
+				$office_id = $session->userdata(OFF_SESSION_ID);
 				
 				// confirm if a single item has been targetted to be shared or multiple files 
 				IF($session->userdata("shareItemId")) {
 					$_file_id = $session->userdata('shareItemId');
+					$_file_id = $_file_id;
 					$_file_type = $session->userdata('shareItemType');
 					// get the item type to be shared either a file or a folder
 					IF($_file_type == "FILE") {
@@ -136,6 +136,7 @@ IF($admin_user->logged_InControlled()) {
 					$shared_many = "FALSE";
 				} ELSEIF($session->userdata("shareItemList")) {
 					$_file_id = $session->userdata("shareItemList");
+					$_file_id = "ArrayList";
 					$_file_type = "Shared_File";
 					$shared_many = "TRUE";
 				}
@@ -156,12 +157,12 @@ IF($admin_user->logged_InControlled()) {
 				IF($session->userdata("shareItemList")) {
 					// insert the list of items in the session into the list table
 					FOREACH($_SESSION["shareItemList"] AS $key=>$value) {
-						$DB->execute("INSERT INTO _shared_listing_detail SET shared_slug='$_file_slug', shared_item_slug='$value', shared_item_id='{$directory->item_by_id('item_title', $value)}'");
+						$DB->execute("INSERT INTO _shared_listing_detail SET shared_slug='$_file_slug', shared_item_slug='$value', shared_item_id='{$directory->item_by_id('id', $value)}'");
 					}
 				}
 				
 				// update the user activity logs
-				$DB->execute("INSERT INTO _activity_logs SET full_date=now(), date_recorded=now(), admin_id='".$session->userdata(":lifeUsername")."', activity_page='shared-item', activity_id='$_file_id', activity_details='$_users_list', office_id='".$session->userdata("officeID")."', activity_description='".$session->userdata(":lifeFullname")." shared the file {FILE_NAME} with {SHARED_USERS}'");
+				$DB->execute("INSERT INTO _activity_logs SET full_date=now(), date_recorded=now(), admin_id='".$admin_user->return_username()."', activity_page='shared-item', activity_id='$_file_id', activity_details='$_users_list', office_id='".$session->userdata(OFF_SESSION_ID)."', activity_description='{ADMIN_FULLNAME} shared the file {FILE_NAME} with {SHARED_USERS}'");
 				
 				// unset the session 
 				@$session->unset_userdata("shareList");
@@ -180,7 +181,7 @@ IF($admin_user->logged_InControlled()) {
 				#get the items and their values
 				$Uid = xss_clean($_POST["Uid"]);
 				$Item_Name = xss_clean($_POST["Item_Name"]);
-				$office_id = $session->userdata("officeID");
+				$office_id = $session->userdata(OFF_SESSION_ID);
 				
 				#start a new session
 				IF (!ISSET($_SESSION)) {

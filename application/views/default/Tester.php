@@ -1,5 +1,8 @@
 <?php
-
+$var1 = 10;
+$var2 = "10";
+print $var1.$var2;
+die();
 // Default language
 $lang = 'en';
 
@@ -70,9 +73,6 @@ if (defined('FM_CONFIG') && is_file(FM_CONFIG) ) {
 }
 
 //--- EDIT BELOW CAREFULLY OR DO NOT EDIT AT ALL
-
-
-session_start();
 if(isset($_GET['toggleTree'])) {
     if ($_SESSION['treeHide'] == 'false') {
         $_SESSION['treeHide'] = 'true';

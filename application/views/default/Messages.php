@@ -25,7 +25,7 @@ IF(confirm_url_id(1, 'Id')) {
 			$MESSAGE_FOUND = TRUE;
 			$session->unset_userdata("chatFirst_Time");
 			FOREACH($QueryString as $Chat) {
-				IF($Chat["sender_id"] == $session->userdata(":lifeID")) {
+				IF($Chat["sender_id"] == $session->userdata(UID_SESS_ID)) {
 					$receiverId = $Chat["receiver_id"];
 				} ELSE {
 					$receiverId = $Chat["sender_id"];
@@ -42,7 +42,7 @@ IF(confirm_url_id(4)) {
 	// confirm that the third url parameter is a new 
 	IF(confirm_url_id(3, 'New')) {
 		// confirm that the user id is not equal to the admin id
-		IF($SITEURL[4] != $session->userdata(":lifeID")) {
+		IF($SITEURL[4] != $session->userdata(UID_SESS_ID)) {
 			// decode the user id and append an (INT) to it
 			$user_id = (INT)base64_decode($SITEURL[4]);
 			#SET SESSIONS FOR SOME IMPORTANT ITEMS
@@ -92,8 +92,8 @@ REQUIRE "TemplateHeader.php";
 			<ul class="contact-list">
 				<?php 
 				// fetch all membership list of the user of the same office
-				$user_id = $session->userdata(":lifeID");
-				$office_id = $session->userdata("officeID");
+				$user_id = $session->userdata(UID_SESS_ID);
+				$office_id = $session->userdata(OFF_SESSION_ID);
 				
 				// query the database admin table
 				$Query = $DB->query("SELECT * FROM _admin WHERE status='1' AND activated='1' AND office_id='$office_id' AND id !='$user_id'");
@@ -135,9 +135,9 @@ REQUIRE "TemplateHeader.php";
 				$listMessages = $DB->query("
 					SELECT * FROM _messages WHERE 
 						((
-							sender_id='{$session->userdata(":lifeID")}' and sender_deleted='0'
+							sender_id='{$session->userdata(UID_SESS_ID)}' and sender_deleted='0'
 						) OR (
-							receiver_id='{$session->userdata(":lifeID")}' and receiver_deleted='0')
+							receiver_id='{$session->userdata(UID_SESS_ID)}' and receiver_deleted='0')
 						) and deleted='0' group by unique_id order by id desc limit 10000
 				");
 				#GET A LOOP OF THE NUMBER OF ROWS FOUND
@@ -148,7 +148,7 @@ REQUIRE "TemplateHeader.php";
 					#SET THE UNIQUE ID FOR THIS CHAT
 					$chat_UID = $r_chat["unique_id"];
 					#GET THE BEST ID OF THE USER
-					if($r_chat["sender_id"] == $session->userdata(":lifeID")) {
+					if($r_chat["sender_id"] == $session->userdata(UID_SESS_ID)) {
 						$other_Id = $r_chat["receiver_id"];
 					} else {
 						$other_Id = $r_chat["sender_id"];

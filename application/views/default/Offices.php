@@ -3,7 +3,7 @@ $PAGETITLE = "Update Office Info";
 // initializing
 GLOBAL $directory;
 $FILE_FOUND = FALSE;
-$office_id = $session->userdata("officeID");
+$office_id = $session->userdata(OFF_SESSION_ID);
 REQUIRE "TemplateHeader.php";
 # confirm that the person trying to view the details is an admin
 # and also the id does not match his or her credentials
@@ -169,7 +169,7 @@ $session->set_userdata("office_id_to_update", $office_id);
 									// get the user file upload status
 									$office_status = $office_results["status"];
 									?>
-									<div id="office_status"><span onclick="change_office_status('<?php print $office_results["id"]; ?>', '<?php print ($office_status) ? '0' : '1'; ?>')" class="btn <?php print ($office_status) ? "btn-success" : "btn-danger"; ?>"><?php print ($office_status) ? "<i class='icon icon-thumbs-up'></i> ACTIVE" : "<i class='icon icon-thumbs-down'></i> INACTIVE"; ?></span></div>
+									<div id="office_status"><span onclick="change_office_status('<?php print $office_id; ?>', '<?php print ($office_status) ? '0' : '1'; ?>')" class="btn <?php print ($office_status) ? "btn-success" : "btn-danger"; ?>"><?php print ($office_status) ? "<i class='icon icon-thumbs-up'></i> ACTIVE" : "<i class='icon icon-thumbs-down'></i> INACTIVE"; ?></span></div>
 								</td>
 							</tr>
 							<tr>
@@ -206,14 +206,14 @@ $session->set_userdata("office_id_to_update", $office_id);
 								<td>Office Daily Usage Limit</td>
 								<td><input type="text" maxlength="8" style="width:180px" id="daily_usage" class="form-control pull-left" value="<?php print round(($office_results["daily_upload"]/(1024*1024)), 2); ?>">
 								<?php if($admin_user->confirm_admin_user()) { ?>
-								<button id="modifyItem" class="btn btn-success pull-right" onclick="update_total_disk_usage('daily','<?php print $office_id; ?>', 'daily_update_div')" style="margin-right:20px"><i class="icon icon-save"></i> Update</button><?php } ?><br clear="both"><small class="daily_update_div"> <?php print file_size_convert($usage_today) ?> used out of <strong><?php print file_size_convert($office_results["daily_upload"]) ?></strong> today</small>
+								<button id="modifyItem" class="btn btn-success pull-right" onclick="update_total_disk_usage('daily','<?php print $office_id; ?>','daily_update_div')" style="margin-right:20px"><i class="icon icon-save"></i> Update</button><?php } ?><br clear="both"><small class="daily_update_div"> <?php print file_size_convert($usage_today) ?> used out of <strong><?php print file_size_convert($office_results["daily_upload"]) ?></strong> maximum daily uploads</small>
 								</td>
 							</tr>
 							<tr>
 								<td>Office Total Disk Usage</td>
-								<td><input type="text" maxlength="8" style="width:180px" id="overall_usage" class="form-control pull-left" value="<?php print round(($total/(1024*1024)), 2); ?>">
+								<td><input type="text" maxlength="8" style="width:180px" id="overall_usage" class="form-control pull-left" value="<?php print ($total/(1024*1024)); ?>">
 								<?php if($admin_user->confirm_super_user()) { ?>
-								<button id="rename_Item" class="btn btn-success pull-right" onclick="update_total_disk_usage('overall','<?php print $office_id; ?>', 'overall_update_div')" style="margin-right:20px"><i class="icon icon-save"></i> Update</button><?php } ?><br clear="both"><small class="overall_update_div"><?php print "<strong>".file_size_convert($usage) ."</strong> out of <strong>".file_size_convert($total) ." </strong> (". round(((($usage)/$total) * 100), 2). "%) used"; ?></small>
+								<button id="rename_Item" class="btn btn-success pull-right" onclick="update_total_disk_usage('overall','<?php print $office_id; ?>','overall_update_div')" style="margin-right:20px"><i class="icon icon-save"></i> Update</button><?php } ?><br clear="both"><small class="overall_update_div"><?php print "<strong>".file_size_convert($usage) ."</strong> out of <strong>".file_size_convert($total) ." </strong> (". ((($usage)/$total) * 100). "%) used"; ?></small>
 								</td>
 							</tr>
 						  </tbody>
@@ -248,7 +248,7 @@ $session->set_userdata("office_id_to_update", $office_id);
 						# query based on the user role that has currently been set on the database
 						$QueryUsers = $DB->query("
 							SELECT * FROM _admin WHERE admin_deleted='0' AND 
-							office_id='{$session->userdata("officeID")}' AND role != '1001'
+							office_id='{$office_results["id"]}' AND role != '1001'
 						");
 						
 						# using foreach loop to list the items 
@@ -292,9 +292,26 @@ $session->set_userdata("office_id_to_update", $office_id);
 						</tr>
 						<?php } ?>
 					</table>
-					
-					
-					
+					<script>
+					// change the user upload status
+					function change_office_status(office_id, new_status) {
+						if(new_status == 1) {
+							var state = "Activate";
+						} else {
+							var state = "Deactivate";
+						}
+						if(confirm("Are you sure you want to "+state+" this Office Account?")) {
+							$.ajax({
+								type: 'POST',
+								url: pageurl+"doUpdateOffice/doChangeStatus",
+								data: "Action=doChangeStatus&office_id="+office_id+"&status="+new_status,
+								success: function(response) {
+									$("#office_status").html(response);
+								}
+							});
+						}
+					}
+					</script>
 				</div>
 				
 				</div>

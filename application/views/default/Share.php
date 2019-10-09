@@ -15,7 +15,7 @@ if(confirm_url_id(1, 'Id')) {
 			'_item_listing', '*', 
 			ARRAY(
 				'id'=>"='$item_id'",
-				'user_id'=>"='".$session->userdata(":lifeID")."'",
+				'user_id'=>"='".$session->userdata(UID_SESS_ID)."'",
 				'item_status'=>"='1'",
 				'item_type'=>"='FILE'",
 		))) == 1) {
@@ -111,11 +111,7 @@ IF(confirm_url_id(1, 'List') AND $session->userdata('shareItemList')) {
 		</div>
 		
 		<div class="span7">
-		  
-		  <div class="row-fluid">
-		  <br clear="both">
-		  <div class="">
-			<h3>YOU HAVE OPTED TO SHARE THIS FILE WITH OTHERS</h3>
+		 <h3 style="margin-top:0px;padding-top:0px">SHARE THIS FILE WITH OTHER USERS</h3>
 			<div class="widget-box">
 			  <div class="widget-title">
 				<ul class="nav nav-tabs">
@@ -177,8 +173,6 @@ IF(confirm_url_id(1, 'List') AND $session->userdata('shareItemList')) {
 				</div>
 			  </div>
 			</div>
-		  </div>
-		</div>
 		</div>
 		<?PHP } ELSE { ?>
 		<?PHP show_error('Page Not Found', 'Sorry the page you are trying to view does not exist on this server', 'error_404'); ?>

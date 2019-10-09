@@ -1,11 +1,10 @@
-<?php 
-#initial 
-global $DB, $functions, $session, $config;
+<?php
+#call the GLOBAL function 
+GLOBAL $SITEURL, $config, $DB, $admin_user, $session, $user_agent;
 # confirm that the user is logged in 
 IF($admin_user->logged_InControlled()) {
 	// create some important objects
 	$directory = load_class('directories', 'models');
-	$user_agent = load_class('user_agent', 'libraries');
 	
 	#confirm that the user has parsed this value
 	IF(ISSET($SITEURL[1]) AND ($SITEURL[1] == "doList")) {
@@ -29,7 +28,7 @@ IF($admin_user->logged_InControlled()) {
 	}
 	
 	#confirm that the user wants to add a new comment
-	IF(ISSET($SITEURL[1]) AND ($SITEURL[1] == "doAdd")) {
+	ELSEIF(ISSET($SITEURL[1]) AND ($SITEURL[1] == "doAdd")) {
 		#check if the user is logged in
 		IF(ISSET($_POST["Data"]) AND STRLEN($_POST["Data"]) > 1) {
 			IF(ISSET($_POST["Action"]) AND $_POST["Action"] == "AddComment") {
@@ -39,14 +38,14 @@ IF($admin_user->logged_InControlled()) {
 				$ip = $user_agent->ip_address();
 				$br = $user_agent->browser()." ".$user_agent->platform();
 				
-				$DB->query("INSERT INTO _shared_comments SET shared_slug='$shared_slug', user_id='{$session->userdata(":lifeID")}', comment='$Data', user_agent='$ip: $br'");
+				$DB->query("INSERT INTO _shared_comments SET shared_slug='$shared_slug', user_id='{$session->userdata(UID_SESS_ID)}', comment='$Data', user_agent='$ip: $br'");
 			}
 		}
 	}
 	
 	
 	// list all the users chats
-	IF(ISSET($SITEURL[1]) AND ($SITEURL[1] == "doListChats")) {
+	ELSEIF(ISSET($SITEURL[1]) AND ($SITEURL[1] == "doListChats")) {
 		// Confirm that the user wants to list the comments
 		IF(ISSET($SITEURL[2]) AND ($SITEURL[2] == "Chats") AND $session->userdata('chatUnQ_Id')) {
 			#check if the user is logged in
@@ -54,7 +53,7 @@ IF($admin_user->logged_InControlled()) {
 				# query the database _shared_listing table for the files that has been shared
 				$chatUnQ_Id = $session->userdata('chatUnQ_Id');
 				$chat_Receiver_Id = $session->userdata('chat_Receiver_Id');
-				$chat_Sender_Id = $session->userdata(":lifeID");
+				$chat_Sender_Id = $session->userdata(UID_SESS_ID);
 				
 				$userChats = $DB->query("SELECT * FROM _messages WHERE 
 						((
@@ -70,7 +69,7 @@ IF($admin_user->logged_InControlled()) {
 				FOREACH($userChats AS $Chats) {
 					
 					// set the position of the message by using the sender of the message
-					IF($Chats["sender_id"] == $session->userdata(":lifeID")) {
+					IF($Chats["sender_id"] == $session->userdata(UID_SESS_ID)) {
 						$position = "chat-right";
 					} ELSE {
 						$position = "chat-left";
@@ -84,20 +83,20 @@ IF($admin_user->logged_InControlled()) {
 	}
 	
 	#confirm that the user wants to add a new comment
-	IF(ISSET($SITEURL[1]) AND ($SITEURL[1] == "doMessage")) {
+	ELSEIF(ISSET($SITEURL[1]) AND ($SITEURL[1] == "doMessage")) {
 		#check if the user is logged in
 		IF(ISSET($_POST["Data"]) AND STRLEN($_POST["Data"]) > 1) {
 			IF(ISSET($_POST["Action"]) AND $_POST["Action"] == "AddChat") {
 				# query the database _shared_listing table for the files that has been shared
 				$chatUnQ_Id = $session->userdata('chatUnQ_Id');
 				$Receiver_Id = $session->userdata('chat_Receiver_Id');
-				$chat_Sender_Id = $session->userdata(":lifeID");
+				$chat_Sender_Id = $session->userdata(UID_SESS_ID);
 				$Data = nl2br(xss_clean($_POST["Data"]));
 				$ip = $user_agent->ip_address();
 				$br = $user_agent->browser()." ".$user_agent->platform();
 				
 				#INSERT THE MESSAGE OF THE USER
-				$DB->just_exec("insert into _messages set unique_id='$chatUnQ_Id', receiver_Id='$Receiver_Id', sender_id='$chat_Sender_Id', message='$Data', sent_date=now()");
+				$DB->just_exec("insert into _messages set unique_id='$chatUnQ_Id', receiver_Id='$Receiver_Id', sender_id='$chat_Sender_Id', message='$Data', sent_date=now(), user_agent='$ip: $br'");
 				#UPDATE THE LAST SEEN STATUS
 				$DB->just_exec("update _admin set last_seen='".time()."' WHERE id='$chat_Sender_Id'");
 				$DB->just_exec("update _messages set seen_status='1', seen_date=now() where receiver_id='$chat_Sender_Id' and seen_status='0'");

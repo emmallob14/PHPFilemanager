@@ -51,14 +51,14 @@ REQUIRE "TemplateHeader.php";
 				IF(!$admin_user->confirm_admin_user()) {
 					$QueryUsers = $DB->query("
 						SELECT * FROM _admin WHERE admin_deleted='0' AND 
-						office_id='{$session->userdata("officeID")}' AND role != '1001'
+						office_id='{$session->userdata(OFF_SESSION_ID)}' AND role != '1001'
 					");
 				}
 				
 				IF($admin_user->confirm_admin_user()) {
 					$QueryUsers = $DB->query("
 						SELECT * FROM _admin WHERE admin_deleted='0' AND 
-						office_id='{$session->userdata("officeID")}' AND role != '1001'
+						office_id='{$session->userdata(OFF_SESSION_ID)}' AND role != '1001'
 					");
 				}
 				

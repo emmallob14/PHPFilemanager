@@ -1,47 +1,98 @@
 <?php 
-
+// ensure this file is being included by a parent file
+if( !defined( 'SITE_URL' ) && !defined( 'SITE_DATE_FORMAT' ) ) die( 'Restricted access' );
 class Directories {
 	
 	public $file_size;
+	public $total_size;
 	
 	public function __construct() {
 		
-		global $DB;
+		global $DB, $session;
 		
 		$this->db = $DB;
 		$this->user_agent = load_class('User_agent', 'libraries');
-		$this->session = load_class('session', 'libraries\Session');
+		$this->session = $session;
 		$this->offices = load_class('offices', 'models');
-		$this->user_id = $this->session->userdata(":lifeID");
-		$this->office_id = $this->session->userdata("officeID");
-		load_file(array('upload_helper'=>'helpers', 'string_helper'=>'helpers'));
+		$this->user_id = $this->session->userdata(UID_SESS_ID);
+		$this->office_id = $this->session->userdata(OFF_SESSION_ID);
 	}
+	
+	public function display_folders($parent_id=0, $level=0, $current_folder) {
+		global $admin_user;
+		// retrieve all children of $parent 
+		$stmt = $this->db->query("SELECT * FROM _item_listing WHERE  (user_id='".$this->session->userdata(UID_SESS_ID)."' OR item_users LIKE '%/".$admin_user->return_username()."/%') AND item_status='1' AND item_deleted='0' AND item_parent_id='$parent_id' AND item_type='FOLDER' ORDER BY item_title"); 
+	 
+		// display each child 
+		foreach($stmt as $result) {
+			// indent and display the title of this child
+			if($current_folder == $result['id']) {
+				print "<option selected='selected' value='{$result['id']}'>".str_repeat('&nbsp;-&nbsp;', $level)." {$result['item_title']}</option>";
+			} else {
+				print "<option value='{$result['id']}'>".str_repeat('&nbsp;-&nbsp;', $level)." {$result['item_title']}</option>";
+			}			
+	 
+			// call this function again to display this 
+			// child's children 
+			$this->display_folders($result['id'], $level+1, $current_folder); 
+		} 
+	}
+	
+	public function array_listing($item_content, $item_id, $type) {
 		
-	public function directory_tree($parent_id=0) {
+		$this->list_users = null;
 		
-		$this->folders = array();
+		global $admin_user;
 		
-		try {			
-			
-			
-		} catch(PDOException $e) {}
+		$_explode_users = explode("/", $item_content);
+		// using foreach loop to get all users 
+		foreach($_explode_users as $users) {
+			if(preg_match("/^[a-zA-Z]+$/", $users)) {
+				$this->list_users .= "&nbsp | <a href='".SITE_URL."/Profile/{$admin_user->get_details_by_id($users)->uname}' >".$admin_user->get_details_by_id($users)->funame." </a>";
+				// confirm that the current user is not the one who created it
+				if(strtolower($users) != strtolower($this->session->userdata(UNAME_SESS_ID))) {
+					$this->list_users .= "<span onclick='remove_user_access(\"$users\",\"".base64_encode($item_id)."\");' class='btn btn-danger icon icon-trash'></span>";
+				}
+			}
+		}
 		
 		return $this;
 	}
 	
 	public function list_all_files($queryString, $itemType) {
 		
-		$stmt = $this->db->query("SELECT * FROM _item_listing WHERE user_id ='{$this->user_id}' AND item_status='1' AND item_deleted='0' $itemType ORDER BY item_type $queryString");
+		global $admin_user;
+		
+		$stmt = $this->db->query("SELECT * FROM _item_listing WHERE (user_id='".$this->session->userdata(UID_SESS_ID)."' OR item_users LIKE '%/".$admin_user->return_username()."/%') AND item_status='1' AND item_deleted='0' $itemType ORDER BY item_type $queryString");
 		
 		return $stmt;
 		
 	}
+	
+	public function list_attached_files($item_id) {
 		
-	public function list_folders($parent_id) {
-		
-		$stmt = $this->db->query("SELECT * FROM _item_listing WHERE item_parent_id='$parent_id' AND item_status='1' AND item_deleted='0' ORDER BY id ASC");
+		$stmt = $this->db->query("SELECT * FROM _item_listing WHERE item_parent_id='{$item_id}'");
 		
 		return $stmt;
+		
+	}
+	
+	public function parent_info($item_id, $link_source=null) {
+		
+		global $config;
+		
+		$item_parent = $this->item_by_id("item_parent_id", $item_id);
+		$parent_name = ($this->item_by_id("item_title", $item_parent)) ? ($this->item_by_id("item_title", $item_parent)) : "Go Back";
+		$parent_slug = $this->item_by_id("item_unique_id", $item_parent);
+		
+		//$item_sub_parent = ($item_parent) ? ($this->item_by_id("item_title", $this->item_by_id("item_parent_id", $item_id))) : NULL;
+		
+		if( !$link_source ) {
+			$this->parent_back_link = ($parent_slug) ? "<a href=\"".$config->base_url()."ItemStream/Id/{$parent_slug}\" class=\"btn btn-primary\">&laquo; $parent_name</a>" : "<a href=\"".$config->base_url()."ItemsStream\" class=\"btn btn-primary\">&laquo; $parent_name</a>";
+		} else {
+			$this->parent_back_link = ($parent_slug) ? "/$parent_name" : "/ROOT";
+		}
+		return $this;
 		
 	}
 	
@@ -133,6 +184,7 @@ class Directories {
 	}
 	
 	public function item_by_id($column, $item_id = NULL, $field = 'item_unique_id') {
+		global $admin_user;
 		# confirm which variable was parsed 
 		$field = (preg_match("/^[0-9]+$/", $item_id)) ? "id" : $field;
 		# continue processing the form 
@@ -140,8 +192,8 @@ class Directories {
 			# query the database for the information of the user
 			$query = $this->db->where('_item_listing', '*', 
 				array(
-					"$field"=>"='{$item_id}'", 'user_id'=>"='{$this->user_id}'",
-					'item_status'=>"='1'", 'item_deleted'=>"='0'"
+					"$field"=>"='{$item_id}'", '(user_id'=>"='{$this->user_id}'",
+					'OR item_users'=>"LIKE '%/".$admin_user->return_username()."/%')", 'item_status'=>"='1'", 'item_deleted'=>"='0'"
 				)
 			);
 			
@@ -199,36 +251,38 @@ class Directories {
 	}
 	
 	public function item_full_size($item_id, $column = 'item_size_kilobyte') {
+		global $admin_user;
 		# continue processing the form 
 		if($item_id) {
 			# query the database for the information of the user
 			$query = $this->db->query("
 				SELECT 
-					SUM($column) AS item_size
+					SUM($column) AS item_size, id
 				FROM 
 					_item_listing
 				WHERE 
-					item_folder_id='{$item_id}' AND user_id='{$this->user_id}' 
+					item_folder_id='{$item_id}' AND (user_id='".$this->session->userdata(UID_SESS_ID)."' OR item_users LIKE '%/".$admin_user->return_username()."/%') 
 				AND 
 					item_status='1' AND item_deleted='0'
 			");
-			
-			if($this->db->num_rows($query) == 1) {
+
+			if($this->db->num_rows($query) > 0) {
 				# using foreach loop to fetch the results 
 				foreach($query as $results) {
 					# first confirm that the column the user is requesting
 					# does results to be a valid column before you return the value
-					if(isset($results["item_size"])) {
-						# use the column supplied to fetch the result for the user
-						return $results["item_size"]*1024;
-					}
+					# use the column supplied to fetch the result for the user
+					$this->total_size += $results["item_size"]*1024;
+					# call the function again to add up recursively
+					$this->item_full_size($results["id"], $column = 'item_size_kilobyte');
 				}				
 			}			
 		}
-		return;
+		return $this->total_size;
 	}
 	
 	public function disk_used_space($query_term, $user_id) {
+		global $admin_user;
 		# continue processing the form 
 		if($user_id) {
 			# get the query terms
@@ -240,7 +294,7 @@ class Directories {
 					FROM 
 						_item_listing
 					WHERE 
-						user_id='{$user_id}' 
+						(user_id='$user_id' OR item_users LIKE '%/".$admin_user->return_username()."/%')
 					AND 
 						item_status='1' AND item_deleted='0'
 				");
@@ -301,7 +355,7 @@ class Directories {
 		if(file_exists(config_item('upload_path').$filename)) {
 			// new file name
 			$file_newname = config_item('upload_path').'download/'.$newname;
-			$file_oldname = config_item('upload_path').'download/'.$oldname."_$newname.".$file_ext;
+			$file_oldname = config_item('upload_path').'download/'.$oldname.".".$file_ext;
 			// first copy the file to a separate folder
 			copy(config_item('upload_path').$filename, $file_newname);
 			// rename the copied file
@@ -320,14 +374,19 @@ class Directories {
 		return $this;
 	}
 	
-	public function force_download($n_FileName) {
-		redirect( SITE_URL . '/'.$n_FileName);
-		// push to download the zip
-		//header('Content-type: application/zip');
-		//header('Content-Disposition: attachment; filename="'.$n_FileName.'"');
-		//readfile("$n_FileName");
-		// delete the temp file downloaded
-		//unlink("$n_FileName");
+	public function force_download($dl, $path=SITE_URL) {
+		header('Content-Description: File Transfer');
+        header('Content-Type: application/octet-stream');
+        header('Content-Disposition: attachment; filename="' . basename($dl) . '"');
+        header('Content-Transfer-Encoding: binary');
+        header('Connection: Keep-Alive');
+        header('Expires: 0');
+        header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
+        header('Pragma: public');
+        header('Content-Length: ' . filesize($dl));
+        readfile($dl);
+		unlink($dl);
+        exit;
 	}
 	
 	public function add_download($item_id) {
@@ -353,4 +412,9 @@ class Directories {
 			}
 		} catch(PDOException $e) {}
 	}
+	
+	public function get_thumbnail_by_ext($n_FileExt) {		
+		return get_file_mime($n_FileExt, 2);
+	}
+	
 }

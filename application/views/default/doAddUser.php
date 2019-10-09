@@ -1,6 +1,6 @@
 <?php
 #call the GLOBAL function 
-GLOBAL $SITEURL, $config, $DB, $admin_user, $session;
+GLOBAL $SITEURL, $config, $DB, $admin_user, $session, $offices;
 # confirm that the user is logged in 
 IF($admin_user->logged_InControlled()) {
 	#confirm that the user has parsed this value
@@ -26,11 +26,13 @@ IF($admin_user->logged_InControlled()) {
 				$firstname = (xss_clean($_POST["firstname"]));
 				$password = (xss_clean($_POST["password"]));
 				$admin_role = xss_clean($_POST["admin_role"]);
-				$username = xss_clean($_POST["username"]);
-				$office_id = (INT)$session->userdata("officeID");
+				$username = UCFIRST(xss_clean($_POST["username"]));
+				$office_id = (INT)$session->userdata(OFF_SESSION_ID);
 				
 				# validate the user information
-				IF(STRLEN($firstname) < 2) {
+				IF(!$admin_user->can_create($offices->item_by_id('account_type', $office_id))) {
+					PRINT "<div class='alert alert-danger'>Sorry! You have reached the maximum account users that can be created.</div>";
+				} ELSEIF(STRLEN($firstname) < 2) {
 					PRINT "<div class='alert alert-danger'>Sorry! Please enter the user firstname.</div>";
 				} ELSEIF(STRLEN($lastname) < 2) {
 					PRINT "<div class='alert alert-danger'>Sorry! Please enter the user lastname.</div>";
@@ -69,7 +71,7 @@ IF($admin_user->logged_InControlled()) {
 					#confirm if the username is available
 					IF($available == TRUE) {
 						#update the information 
-						$DB->just_exec("insert into _admin set office_id='$office_id', firstname='$firstname', lastname='$lastname', fullname='$firstname $lastname', username='$username', email='$email', level='$level', role='$admin_role',date_added=now(),added_by='".$admin_user->return_username()."'");
+						$DB->just_exec("insert into _admin set office_id='$office_id', firstname='$firstname', lastname='$lastname', fullname='$firstname $lastname', username='$username', email='$email', level='$level', role='$admin_role',date_added=now(),added_by='{$admin_user->return_username()}'");
 						
 						#update the current session of the user 
 						PRINT "<div class='alert alert-success'>Admin information successfully inserted.</div>.";
@@ -84,25 +86,25 @@ IF($admin_user->logged_InControlled()) {
 						}
 						
 						#insert the user activity logs 
-						$DB->just_exec("insert into _activity_logs set date_recorded=now(), admin_id='".$admin_user->return_username()."', activity_page='admin', activity_id='$username', activity_details='$username', activity_description='Admin details of $firstname $lastname has been inserted into the database.'");
+						$DB->just_exec("insert into _activity_logs set date_recorded=now(), admin_id='{$admin_user->return_username()}', activity_page='admin', activity_id='$username', activity_details='$username', activity_description='Admin details of $firstname $lastname has been inserted into the database.'");
 						
 						#send an email to the new user 
 						$message = "Hello, $firstname $lastname,<br><br>";
-						$message .= "An acCOUNT has been created at <strong>".config_item('site_name')."</strong> on your behalf by <strong>".$admin_user->return_username()."</strong>.<br><br>";
-						$message .= "The details of your user acCOUNT are as follows:<br><br>";
+						$message .= "An Account has been created at <strong>".config_item('site_name')."</strong> on your behalf by <strong>{$admin_user->return_username()}</strong>.<br><br>";
+						$message .= "The details of your user Account are as follows:<br><br>";
 						$message .= "<strong>USERNAME:</strong> $username<br>";
 						$message .= "<strong>PASSWORD:</strong> $password<br><br>";
 						$message .= "Please not that you will be prompted to change this password after logging in for the first time.<br><br>";
-						$message .= "<a href='".SITE_URL."/Login?User=$username'>Click Here</a> to login to your acCOUNT.<br><br>Thank you.";
+						$message .= "<a href='".SITE_URL."/Login?User=$username'>Click Here</a> to login to your Account.<br><br>Thank you.";
 								
 						send_email(
-							$email, "[".config_item('site_name')."] Admin AcCOUNT", 
+							$email, "[".config_item('site_name')."] Admin Account", 
 							$message, config_item('site_name'), config_item('site_email'), 
 							NULL, 'default', $username
 						);
 						
 						#update the current session of the user 
-						PRINT "<div class='alert alert-success'>$password Admin information successfully inserted.</div>.<script>$(\"#doAddUser\")[0].reset();</script>";
+						PRINT "<script>$(\"#doProcessUser\")[0].reset();</script>";
 						
 					}
 				}

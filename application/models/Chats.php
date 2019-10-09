@@ -1,16 +1,16 @@
 <?php 
-
+// ensure this file is being included by a parent file
+if( !defined( 'SITE_URL' ) && !defined( 'SITE_DATE_FORMAT' ) ) die( 'Restricted access' );
 class Chats {
 	
 	public $file_size;
 	
 	public function __construct() {
 		
-		global $DB;
+		global $DB, $session;
 		
 		$this->db = $DB;
-		$this->session = load_class('session', 'libraries\Session');
-		load_file(array('upload_helper'=>'helpers', 'string_helper'=>'helpers'));
+		$this->session = $session;
 	}
 
 	public function uniqueId($senderId, $receiverId) {

@@ -8,6 +8,10 @@ $('.chat-message button').click(function(){
 	}		
 });
 
+$("#chat-messages-inner").on('click', function() {
+	$('.chat-message input').val('').focus();
+});
+
 $('.chat-message input').keypress(function(e){
 	if(e.which == 13) {	
 		if($(this).val() != ''){

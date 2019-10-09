@@ -25,7 +25,7 @@ REQUIRE "TemplateHeader.php";
 		<div class="span12">
 		  <div class="widget-box">
 		  <div class="widget-title"> <span class="icon"><i class="icon-th"></i></span>
-			<h5>Listing all Registered Offices</h5>
+			<h5>Listing all User Login History</h5>
           </div>
           <div class="widget-content nopadding">
 			<div class="dt-responsive table-responsive">

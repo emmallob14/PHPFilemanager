@@ -1,7 +1,6 @@
 <?php
-#call the global function 
-global $SITEURL, $config, $DB;
-
+#call the GLOBAL function 
+GLOBAL $SITEURL, $config, $DB, $admin_user, $session, $offices;
 # confirm that the user is logged in 
 IF($admin_user->logged_InControlled()) {
 	#confirm that the user has parsed this value
@@ -51,7 +50,7 @@ IF($admin_user->logged_InControlled()) {
 					
 					PRINT "<div class='file File_Info_$Id' onmouseout='hide_item(\"$Id\")' onmouseover='show_item(\"$Id\")'><a href='".$config->base_url()."ItemStream/Id/$Uid'><img src='".$config->base_url().$Folders['item_thumbnail']."'><br>$fileName</a> <br>
 					<div class='file_option' id='option_$Id'>
-						<span onclick='process_item(\"delete\", \"$Id\", \"FOLDER\", \"".$session->userdata(":lifeID")."\");' class='btn btn-danger'><i class='icon-trash'></i> Delete Folder</span>
+						<span onclick='process_item(\"delete\", \"$Id\", \"FOLDER\", \"".$session->userdata(UID_SESS_ID)."\");' class='btn btn-danger'><i class='icon-trash'></i> Delete Folder</span>
 					</div>
 					</div>";
 				}
@@ -67,14 +66,27 @@ IF($admin_user->logged_InControlled()) {
 					$Uid = $Files["item_unique_id"];
 					$DLink = $Files["item_download_link"];
 					
-					PRINT "<div class='file File_Info_$Id' onmouseout='hide_item(\"$Id\")' onmouseover='show_item(\"$Id\")'><a href='".$config->base_url()."ItemStream/Id/$Uid'><img src='".$config->base_url().$Files['item_thumbnail']."'><br>$fileName</a> <br>
-					<div class='file_option' id='option_$Id'>
-						<span title='View the full details of this file' onclick='process_item(\"edit\", \"$Uid\", \"FILE\", \"".$session->userdata(":lifeID")."\");' class='btn btn-primary'><i class='icon-edit'></i></span>
-						<span title='Download this file' class='btn btn-success'><a style='color:#fff' href='".$config->base_url()."Download/$DLink' target='_blank'><i class='icon-download'></i></a></span>
-						<span title='Add File to Share List' onclick='add_share_item(\"$Uid\",\"$fileName\");' class='btn btn-warning'><i class='icon-plus'></i></span>
-						<span onclick='process_item(\"delete\", \"$Id\", \"FILE\", \"".$session->userdata(":lifeID")."\");' class='btn btn-danger'><i class='icon-trash'></i></span>
-					</div>
-					</div>";				
+					PRINT "<div class='file File_Info_$Id' onmouseout='hide_item(\"$Id\")' onmouseover='show_item(\"$Id\")'>";
+					
+					PRINT "<a title='Click to view full details of this file.' href='".$config->base_url()."ItemStream/Id/$Uid'><img src='".$config->base_url().$Files['item_thumbnail']."'><br>$fileName</a><br>";
+					
+					PRINT "<div class='file_option' id='option_$Id'>";
+					
+					// CONFIRM THAT THE FILE IS A ZIP FILE
+					IF($file_ext == "zip") {
+						PRINT "<span value='$Id' title='Extract File' data-toggle=\"modal\" data-target=\"#extractZippedItem\" class='btn btn-primary extract_zip'><i class='icon-bookmark'></i></span> ";
+					} ELSE {
+						// CHECK IF THE FILE IS PART OF THE THE LIST OF EDITABLE FILES
+						IF(IN_ARRAY(".".$file_ext, config_item("editable_ext"))) {
+							PRINT "<span title='Edit the contents of this file.' class='btn btn-primary'><a style='color:#fff' href='".$config->base_url()."ItemStream/Id/$Uid/Edit'><i class='icon-edit'></i></a></span> ";
+						} ELSE {							
+							PRINT "<span title='Click to view the full contents of this file.' onclick='process_item(\"edit\", \"$Uid\", \"FILE\", \"".$session->userdata(UID_SESS_ID)."\");' class='btn btn-primary'><i class='icon-eye-open'></i></span> ";
+						}
+					}
+					PRINT "<span title='Download this file' class='btn btn-success'><a style='color:#fff' href='".$config->base_url()."Download/$DLink' target='_blank'><i class='icon-download'></i></a></span> ";
+					PRINT "<span title='Add File to Share List' onclick='add_share_item(\"$Uid\",\"$fileName\");' class='btn btn-warning'><i class='icon-plus'></i></span> ";
+					PRINT "<span title='Click to delete this file.' onclick='process_item(\"delete\", \"$Id\", \"FILE\", \"".$session->userdata(UID_SESS_ID)."\");' class='btn btn-danger'><i class='icon-trash'></i></span>";
+					PRINT "</div></div>";			
 				}
 				?>
 				<script>

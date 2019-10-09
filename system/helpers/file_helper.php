@@ -143,6 +143,7 @@ if ( ! function_exists('delete_files'))
 				if (is_dir($filepath) && $filename[0] !== '.' && ! is_link($filepath))
 				{
 					delete_files($filepath, $del_dir, $htdocs, $_level + 1);
+					rmdir($filepath);
 				}
 				elseif ($htdocs !== TRUE OR ! preg_match('/^(\.htaccess|index\.(html|htm|php)|web\.config)$/i', $filename))
 				{
@@ -449,5 +450,29 @@ if ( ! function_exists('octal_permissions'))
 	function octal_permissions($perms)
 	{
 		return substr(sprintf('%o', $perms), -3);
+	}
+}
+
+function validate_image($theValue) {
+
+	if(!empty($theValue)):
+		$allowed = array("jpg","jpeg","gif","png");
+		$extension = pathinfo($theValue, PATHINFO_EXTENSION);
+		
+		if(in_array(strtolower($extension), $allowed)):
+			//this is a valid image
+			return true;
+		endif;
+	endif;
+
+}
+
+
+function get_file_mime($file_ext, $array_item) {
+	foreach(config_item('used_mime_types') as $mime) {
+		if($file_ext == $mime[0]) {
+			return $mime[$array_item];
+			break;
+		}
 	}
 }

@@ -24,7 +24,128 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 |
 */
 $config['base_url'] = 'http://localhost/filemanager';
+$config['manager_dashboard'] = 'http://localhost/filemanager/';
+$config['rowsperpage'] = 40;
+$config['serverversion'] = '2.0';
+$config['site_url'] = 'MatrixFileManager.Com';
+$config['site_name'] = 'MatrixAdmin FileManager';
+$config['site_email'] = 'info@MatrixFileManager.Com';
+$config['developer'] = 'Emmanuel Obeng';
+$config['update_folder'] = '/filemanager/application/backups/';
+$config['daily_uploads'] = 1024*1024*1024*500;
+$config['server_space'] = 1024*1024*1024*1024*10;
+$config['sionoff'] = 'Off';
 
+// editable files:
+$config["editable_ext"] =
+	array(".asm", ".rc", ".hh", ".hxx", ".odl", ".idl", ".rc2", ".dlg", ".less"
+	,".php", ".php3", ".php4", ".php5", ".phtml", ".inc", ".sql", ".csv"
+	,".vb", ".vbs", ".bas", ".frm", ".cls", ".ctl", ".rb", ".htm", ".html", ".shtml", ".dhtml", ".xml"
+	,".js", ".css", ".scss", ".cgi", ".cpp", ".c", ".cc", ".cxx", ".hpp", ".h", ".lua"
+	,".pas", ".p", ".pl", ".java", ".py", ".sh", ".bat", ".tcl", ".tk"
+	,".txt", ".ini", ".conf", ".properties", ".htaccess", ".htpasswd");
+	
+// common similar files:
+$config["images_ext"] = array(".png", ".bmp", ".jpg", ".jpeg", ".gif", ".tif", ".ico" );
+$config["audio_files"] = array("mp3","wav","midi","rm","ra","ram","pls","m3u","m3u");
+$config["video_files"] = array("mp4","3gp","mpg","mpeg","mov","avi","swf");
+$config["microsoft_docs"] = array("doc","docx","xls","xlsx","pdf");
+$config["microsoft_docs"] = array("doc","docx","xls","xlsx","pdf");
+$config["zipped_files"] = array("zip");
+//------------------------------------------------------------------------------
+// mime types: (description,image,extension)
+$config["super_mimes"] = array(
+	// dir, exe, file
+	"dir"	=> array(  'dir', 'Dir', "assets/images/extension/folder.png"),
+	"exe"	=> array(  'exe', 'exe', "assets/images/extension/exe.png",".exe", ".com", ".bin"),
+	"file"	=> array(  'file', 'file', "assets/images/extension/document.png")
+);
+$config["used_mime_types"] = array(
+	// text
+	"text"	=> array(  'text', 'Text',   "assets/images/extension/txt.png",   ".txt"),
+
+	// programming
+	"php"	=> array(  'php', 'PHP',    "assets/images/extension/php.png",   ".php"),
+	"php3"	=> array(  'php3', 'php3',   "assets/images/extension/php.png",  ".php3"),
+	"php4"	=> array(  'php4', 'php4',   "assets/images/extension/php.png",  ".php4"),
+	"php5"	=> array(  'php5', 'php5',   "assets/images/extension/php.png",  ".php5"),
+	"phtml"	=> array(  'phtml', 'phtml',  "assets/images/extension/php.jpg", ".phtml"),
+	"inc"	=> array(  'inc', 'inc',    "assets/images/extension/inc.png",   ".inc"),
+	"sql"	=> array(  'sql', 'SQL',    "assets/images/extension/sql.jpg",   ".sql"),
+	"pl"	=> array(  'pl', 'Perl',     "assets/images/extension/pl.png",    ".pl"),
+	"cgi"	=> array(  'cgi', 'CGI',    "assets/images/extension/cgi.png",   ".cgi"),
+	"py"	=> array(  'py', 'Python',     "assets/images/extension/py.ico",    ".py"),
+	"sh"	=> array(  'sh', 'Shell',     "assets/images/extension/sh.png",    ".sh"),
+	"c" 	=> array(  'c', 'C',      "assets/images/extension/c.png",     ".c"),
+	"cc"	=> array(  'cc', 'CC',     "assets/images/extension/cc.png",    ".cc"),
+	"cpp"	=> array(  'cpp', 'CPP',    "assets/images/extension/cpp.jpg",   ".cpp"),
+	"cxx"	=> array(  'cxx', 'CXX',    "assets/images/extension/cxx.png",   ".cxx"),
+	"h" 	=> array(  'h', 'H',      "assets/images/extension/h.png",     ".h"),
+	"hpp" 	=> array(  'hpp', 'hpp',    "assets/images/extension/hpp.png",   ".hpp"),
+	"java"	=> array(  'java', 'Java',   "assets/images/extension/java.jpg",  ".java"),
+	"class"	=> array(  'class', 'Class',  "assets/images/extension/class.png", ".class"),
+	"jar"	=> array(  'jar', 'Jar',    "assets/images/extension/jar.png",   ".jar"),
+	"htaccess" => array( 'htaccess', 'htaccess', "assets/images/icons/text.png", ".htaccess"),
+	// browser
+	"htm"	=> array(  'htm', 'HTML',    "assets/images/extension/htm.png",   ".htm"),
+	"html"	=> array(  'html', 'HTML',   "assets/images/extension/html.png",  ".html"),
+	"shtml"	=> array(  'shtml', 'sHTML',  "assets/images/extension/html.png", ".shtml"),
+	"dhtml"	=> array(  'dhtml', 'dHTML',  "assets/images/extension/html.png", ".dhtml"),
+	"xhtml"	=> array(  'xhtml', 'XHTML',  "assets/images/extension/html.png", ".xhtml"),
+	"xml"	=> array(  'xml', 'XML',    "assets/images/extension/xml.png",   ".xml"),
+	"js"	=> array(  'js', 'Javascript',     "assets/images/extension/js.jpg",    ".js"),
+	"css"	=> array(  'css', 'Cascading StyleSheet',    "assets/images/extension/css.png",   ".css"),
+	"scss"	=> array(  'css', 'Cascading StyleSheet',    "assets/images/extension/css.png",   ".scss"),
+	
+	// images
+	"gif"	=> array(  'gif', 'GIF',    "assets/images/extension/gif.png",   ".gif"),
+	"jpg"	=> array(  'jpg', 'JPG',    "assets/images/extension/jpg.png",   ".jpg"),
+	"jpeg"	=> array(  'jpeg', 'JPEG',   "assets/images/extension/jpeg.png",  ".jpeg"),
+	"bmp"	=> array(  'bmp', 'Bitmap',    "assets/images/extension/bmp.png",   ".bmp"),
+	"png"	=> array(  'png', 'PNG',    "assets/images/extension/png.png",   ".png"),
+	
+	// compressed
+	"zip"	=> array(  'zip', 'ZIP',    "assets/images/extension/zip.png",   ".zip"),
+	"tar"	=> array(  'tar', 'TAR',    "assets/images/extension/tar.png",   ".tar"),
+	"tgz"	=> array(  'tgz', 'Tar/GZ',    "assets/images/extension/tgz.png",   ".tgz"),
+	"gz"	=> array(  'gz', 'GZip',     "assets/images/extension/gz.png",    ".gz"),
+
+
+	"bz2"	=> array(  'bz2', 'Bzip2',    "assets/images/extension/bz2.png",   ".bz2"),
+	"tbz"	=> array(  'tbz', 'Tar/Bz2',    "assets/images/extension/tbz.png",   ".tbz"),
+	"rar"	=> array(  'rar', 'RAR',    "assets/images/extension/rar.png",   ".rar"),
+
+	// music
+	"mp3"	=> array(  'mp3', 'Mp3',    "assets/images/extension/audio.png",   ".mp3"),
+	"wav"	=> array(  'wav', 'WAV',    "assets/images/extension/wav.png",   ".wav"),
+	"midi"	=> array(  'midi', 'Midi',   "assets/images/extension/midi.png",  ".mid"),
+	"rm"	=> array(  'real', 'Real Media',   "assets/images/extension/rm.png",    ".rm"),
+	"ra"	=> array(  'real', 'Real Audio',   "assets/images/extension/ra.png",    ".ra"),
+	"ram"	=> array(  'real', 'Real Media',   "assets/images/extension/ram.png",   ".ram"),
+	"pls"	=> array(  'pls', 'pls',    "assets/images/extension/pls.png",   ".pls"),
+	"m3u"	=> array(  'm3u', 'm3u',    "assets/images/extension/m3u.png",   ".m3u"),
+
+	// movie
+	"mp4"	=> array(  'mp4', 'MP4',    "assets/images/extension/mpeg.png",   ".mp4"),
+	"3gp"	=> array(  '3gp', '3GP',    "assets/images/extension/movie.jpg",   ".3gp"),
+	"mpg"	=> array(  'mpg', 'MPG',    "assets/images/extension/mpg.png",   ".mpg"),
+	"mpeg"	=> array(  'mpeg', 'MPG',  "assets/images/extension/mpeg.png",  ".mpeg"),
+	"mov"	=> array(  'mov', 'MOV',    "assets/images/extension/mov.png",   ".mov"),
+	"avi"	=> array(  'avi', 'AVI',    "assets/images/extension/avi.png",   ".avi"),
+	"swf"	=> array(  'swf', 'SWF',    "assets/images/extension/swf.png",   ".swf"),
+	
+	// Micosoft / Adobe
+	"doc"	=> array(  'doc', 'Word',    "assets/images/extension/doc.jpg",   ".doc"),
+	"docx"	=> array(  'docx', 'Word',   "assets/images/extension/docx.jpg",  ".docx"),
+	"xls"	=> array(  'xls', 'Excel',    "assets/images/extension/xls.png",   ".xls"),
+	"xlsx"	=> array(  'xlsx', 'Excel',   "assets/images/extension/xlsx.png",  ".xlsx"),
+	"rtf"	=> array(  'rtf', 'Rich Text Format',   "assets/images/extension/rtf.png",  ".rtf"),
+	"txt"	=> array(  'txt', 'Text Document',   "assets/images/extension/txt.png",  ".txt"),
+	
+	"pdf"	=> array(  'pdf', 'PDF',    "assets/images/extension/pdf.png",   ".pdf")
+);
+
+//------------------------------------------------------------------------------
 /*
 |--------------------------------------------------------------------------
 | Index File
@@ -389,7 +510,7 @@ $config['encryption_key'] = 'I99_Obeng_F109';
 |
 */
 $config['sess_driver'] = 'files';
-$config['sess_cookie_name'] = 'ci_session';
+$config['sess_cookie_name'] = 'mfa_session';
 $config['sess_expiration'] = 2500;
 $config['sess_save_path'] = "/filemanager/application/sessions/";
 $config['sess_match_ip'] = FALSE;
@@ -532,12 +653,3 @@ $config['rewrite_short_tags'] = FALSE;
 | Array:		array('10.0.1.200', '192.168.5.0/24')
 */
 $config['proxy_ips'] = '';
-
-$config['rowsperpage'] = 40;
-$config['site_url'] = 'MatrixFileManager.Com';
-$config['site_name'] = 'MatrixAdmin FileManager';
-$config['site_email'] = 'info@MatrixFileManager.Com';
-$config['developer'] = 'Emmanuel Obeng';
-$config['update_folder'] = '/filemanager/application/backups/';
-$config['server_space'] = 1190899280000*10;
-$config['daily_uploads'] = 1190899280000/5;

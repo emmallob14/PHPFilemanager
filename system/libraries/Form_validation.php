@@ -1134,8 +1134,7 @@ class Form_validation {
 	 * @param	string
 	 * @return	bool
 	 */
-	public function min_length($str, $val)
-	{
+	public function min_length($str, $val) {
 		if ( ! is_numeric($val))
 		{
 			return FALSE;

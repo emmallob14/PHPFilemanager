@@ -1,0 +1,12 @@
+CHANGELOG VERSION 2.0 
+
+---	List Parent/Child Folders Recursively
+---	Enabled users to automatically select Folder to Upload & and Folders underwhich to create a new folder
+---	Enabled users to create their own files unto the system and specify their own file extensions to be used.
+---	Retrieved the Folder Total Size taking into consideration Sub Files and Folders
+--- Users can now extract files into a specified folder of choice
+--- Users can now have a clean download of their files uploaded unto the server without any change of name whatsoever.
+--- Users can fully and easily edit the contents of a particular file (Credits to Christophe Dolivet who Developped the EditArea Javascript Plugin Released under LGPL, Apache and BSD licenses) for use by all.
+--- Movement of files and folders is now available for users advantage.
+--- Users can directly play uploaded audio and video online without stress.
+--- You can now view Microsoft Office Documents using Google Docs wihin the application.

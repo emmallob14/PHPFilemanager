@@ -5,8 +5,8 @@ GLOBAL $directory, $session;
 $FILE_FOUND = FALSE;
 // initialize some sessions
 $session->unset_userdata('replaceItemId');
-if(!$session->userdata('RootFolder')) {
-	$session->set_userdata('RootFolder', 0);
+if(!$session->userdata(ROOT_FOLDER)) {
+	$session->set_userdata(ROOT_FOLDER, 0);
 }
 // check the url that has been parsed
 if(confirm_url_id(1, 'Replace')) {
@@ -18,7 +18,7 @@ if(confirm_url_id(1, 'Replace')) {
 				'_shared_listing', '*', 
 				ARRAY(
 					'shared_slug'=>"='$item_slug'",
-					'shared_with'=>"LIKE '%/".$session->userdata(":lifeID")."/%'",
+					'shared_with'=>"LIKE '%/".$session->userdata(UID_SESS_ID)."/%'",
 					'shared_item_id'=>"='$item_id'",
 					'shared_status'=>"='1'",
 					'shared_expiry'=>" > ".time(),
@@ -68,13 +68,19 @@ if(confirm_url_id(1, 'Replace')) {
 	  <?PHP } ?>
 	  
 		<div class="">
-		<span class='alert alert-primary' style="width:100%">The files will be uploaded into the  <strong><?php if( $session->userdata('RootFolder') ) { ?><?php print strtoupper($directory->item_by_id('item_title', $session->userdata('RootFolder'))); ?><?php } else { ?>ROOT<?php } ?></strong> Folder. <a class='btn btn-primary' id='changeFolder' href="<?php print $config->base_url(); ?>ItemsStream">Change Folder?</a></span>
+		<span class='alert alert-primary' style="width:100%">The files will be uploaded into the  <strong class="get_current_upload_folder"><?php if( $session->userdata(ROOT_FOLDER) ) { ?><a href='<?php print $config->base_url(); ?>ItemStream/Id/<?php print $directory->item_by_id('item_unique_id', $session->userdata(ROOT_FOLDER)); ?>'><?php print strtoupper($directory->item_by_id('item_title', $session->userdata(ROOT_FOLDER))); ?></a><?php } else { ?><a href='<?php print $config->base_url() ; ?>ItemsStream'>ROOT</a><?php } ?></strong> Folder. <a class='btn btn-primary' id='changeFolder' href="#">Change Folder?</a></span>
+		<span class="reload_folders" style="margin-top:5px;">
+			<select style="height:40px;padding-top:5px;width:350px" class="form-control" id="current_folder" name="current_folder" onchange="update_upload_folder(this.value)">
+				<option value="0">Root Folder</option>
+				<?php $directory->display_folders(0, 1, $session->userdata(ROOT_FOLDER)); ?>
+			</select>
+		</span>
 		</div>
 		<br clear="both">
 	  <div class="row-fluid">
 		
 		<div class="span6">
-			<?php if($admin_user->get_details_by_id($session->userdata(":lifeID"))->upload_status) { ?>
+			<?php if($admin_user->get_details_by_id($session->userdata(UID_SESS_ID))->upload_status) { ?>
 			<div id="drag-and-drop-zone" class="dm-uploader p-5">
 				<h3 class="mb-5 mt-5 text-muted">Drag &amp; drop files here</h3>
 				<div class="btn btn-primary btn-block mb-5">
@@ -99,7 +105,7 @@ if(confirm_url_id(1, 'Replace')) {
           </div>
 		</div>
 	  </div>
-	  <?php if($admin_user->get_details_by_id($session->userdata(":lifeID"))->upload_status) { ?>
+	  <?php if($admin_user->get_details_by_id($session->userdata(UID_SESS_ID))->upload_status) { ?>
 	  <div class="row-fluid">
         <div class="span12">
            <div class="card h-100">

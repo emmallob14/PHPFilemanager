@@ -14,4 +14,7 @@ define('ATTEMPTS_NUMBER', 7);
 
 defined('SITE_DATE_FORMAT') 		OR define('SITE_DATE_FORMAT', 'd M Y H:iA');
 defined('SITE_URL') 				OR define('SITE_URL', config_item('base_url'));
-defined('F_SIZE') 		OR define("F_SIZE", "10Mb");
+
+defined('userLoggedIn')				OR define("userLoggedIn", "userLoggedIn");
+defined('userId')					OR define("userId", "userId");
+defined('userName')					OR define("userName", "userName");

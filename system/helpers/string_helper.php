@@ -380,3 +380,50 @@ function limit_words($str, $word_limit = null) {
 	
 	return implode(" ", array_splice($words, 0, $word_limit));
 }
+
+/**
+ * Minimum Length
+ *
+ * @param	string
+ * @param	string
+ * @return	bool
+ */
+function min_length($str, $val) {
+	if ( ! is_numeric($val))
+	{
+		return FALSE;
+	}
+
+	return ($val <= mb_strlen($str));
+}
+
+// --------------------------------------------------------------------
+
+/**
+ * Max Length
+ *
+ * @param	string
+ * @param	string
+ * @return	bool
+ */
+function max_length($str, $val) {
+	if ( ! is_numeric($val))
+	{
+		return FALSE;
+	}
+
+	return ($val >= mb_strlen($str));
+}
+
+// --------------------------------------------------------------------
+
+/**
+ * Validate Contact Number
+ *
+ * @param	string
+ * @param	string
+ * @return	bool
+ */
+function valid_contact($str) {
+	return (bool) preg_match("/^[0-9+]+$/", $str);
+}

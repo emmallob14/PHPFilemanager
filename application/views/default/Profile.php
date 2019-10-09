@@ -157,8 +157,10 @@ $session->set_userdata("admin_access", $admin_access);
 					</div>
 					<div class="j-footer">
 					<?php if($user_access == true) { ?>
-					<button type="submit" class="btn btn-success"><li class="icon icon-save"></li> Update Details</button>
-					<span onclick="window.location.href='<?php print $config->base_url(); ?>ChangeAccountPassword'" class="btn btn-primary pull-right"><li class="icon icon-lock"></li> Change Password</span>
+						<button type="submit" class="btn btn-success"><li class="icon icon-save"></li> Update Details</button>
+						<?php if($admin_user->return_username() == $admin_results["username"]) { ?>
+						<span onclick="window.location.href='<?php print $config->base_url(); ?>ChangeAccountPassword'" class="btn btn-primary pull-right"><li class="icon icon-lock"></li> Change Password</span>
+						<?php } ?>
 					<?php } ?>
 					</div>
 					</form>

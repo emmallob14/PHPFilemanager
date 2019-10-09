@@ -1,16 +1,16 @@
 <?php
-
-
+// ensure this file is being included by a parent file
+if( !defined( 'SITE_URL' ) && !defined( 'SITE_DATE_FORMAT' ) ) die( 'Restricted access' );
 class Recorder {
 	
 	
 	public function __construct() {
 		
-		global $DB;
+		global $DB, $session;
 		
 		$this->db = $DB;
 		$this->user_agent = load_class('User_agent', 'libraries');
-		$this->session = load_class('session', 'libraries\Session');
+		$this->session = $session;
 		
 	}
 	
